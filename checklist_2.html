@@ -1,0 +1,1866 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>現状把握チェックリスト</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@300;400;500;700;900&family=Bebas+Neue&display=swap');
+  :root {
+    --bg:#0b0e17;--surface:#111520;--surface2:#161b2e;--border:#1e2640;
+    --accent:#c8a84b;--accent2:#e8c96a;
+    --text:#dde3f0;--muted:#6b7594;
+    --t1:#c8a84b;--t2:#d47b3f;--t3:#5b8dd9;--t4:#7c6cc0;--t5:#4caf82;
+    --ind:#5b8dd9;
+  }
+  *{box-sizing:border-box;margin:0;padding:0;}
+  body{font-family:'Noto Sans JP',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;padding:0 0 60px;}
+
+  .hero{background:linear-gradient(160deg,#0d1220 0%,#0b0e17 60%);border-bottom:1px solid var(--border);padding:28px 20px 22px;position:relative;overflow:hidden;}
+  .hero::before{content:'CHECK';position:absolute;right:-10px;top:-10px;font-family:'Bebas Neue',sans-serif;font-size:7rem;color:rgba(200,168,75,0.04);pointer-events:none;}
+  .hero-label{font-size:.63rem;letter-spacing:3px;text-transform:uppercase;color:var(--accent);margin-bottom:6px;}
+  .hero h1{font-size:1.35rem;font-weight:900;line-height:1.3;margin-bottom:5px;}
+  .hero p{font-size:.76rem;color:var(--muted);line-height:1.65;}
+
+  /* TABS */
+  .tab-bar{display:flex;border-bottom:2px solid var(--border);background:var(--surface2);}
+  .tab-btn{flex:1;padding:13px 8px;text-align:center;font-size:.82rem;font-weight:700;cursor:pointer;border:none;background:transparent;color:var(--muted);letter-spacing:.5px;transition:color .2s,background .2s;position:relative;font-family:'Noto Sans JP',sans-serif;}
+  .tab-btn.active-corp{color:var(--t1);background:rgba(200,168,75,.07);}
+  .tab-btn.active-corp::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:2px;background:var(--t1);}
+  .tab-btn.active-ind{color:var(--ind);background:rgba(91,141,217,.07);}
+  .tab-btn.active-ind::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:2px;background:var(--ind);}
+  .tab-pane{display:none;}
+  .tab-pane.active{display:block;}
+
+  /* SCORE */
+  .score-panel{margin:14px 14px 0;background:var(--surface);border:1px solid var(--border);border-radius:13px;padding:13px 16px;}
+  .score-row{display:flex;align-items:center;justify-content:space-between;margin-bottom:9px;}
+  .score-label{font-size:.7rem;color:var(--muted);}
+  .score-value{font-family:'Bebas Neue',sans-serif;font-size:1.7rem;color:var(--accent);letter-spacing:2px;}
+  .score-value.ind-val{color:var(--ind);}
+  .progress-track{height:5px;background:var(--border);border-radius:99px;overflow:hidden;}
+  .progress-fill{height:100%;border-radius:99px;transition:width .4s ease;width:0%;}
+  .corp-fill{background:linear-gradient(90deg,var(--t1),var(--accent2));}
+  .ind-fill{background:linear-gradient(90deg,var(--ind),#82b4ff);}
+
+  /* OPP TAGS */
+  .opp-panel{margin:11px 14px 0;display:flex;flex-wrap:wrap;gap:6px;}
+  .opp-tag{padding:4px 11px;border-radius:20px;font-size:.68rem;font-weight:700;border:1px solid transparent;opacity:.3;transition:opacity .25s,transform .2s;}
+  .opp-tag.active{opacity:1;transform:scale(1.04);}
+  .opp-tag.t1{background:rgba(200,168,75,.15);border-color:var(--t1);color:var(--t1);}
+  .opp-tag.t2{background:rgba(212,123,63,.15);border-color:var(--t2);color:var(--t2);}
+  .opp-tag.t3{background:rgba(91,141,217,.15);border-color:var(--t3);color:var(--t3);}
+  .opp-tag.t4{background:rgba(124,108,192,.15);border-color:var(--t4);color:var(--t4);}
+  .opp-tag.t5{background:rgba(76,175,130,.15);border-color:var(--t5);color:var(--t5);}
+
+  /* SECTION */
+  .section{margin:13px 14px 0;}
+  .sec-header{display:flex;align-items:center;gap:9px;margin-bottom:9px;padding:10px 13px;background:var(--surface2);border-radius:11px;border-left:3px solid var(--t1);cursor:pointer;user-select:none;}
+  .sec-header.s2{border-left-color:var(--t2);}
+  .sec-header.s3{border-left-color:var(--t3);}
+  .sec-header.s4{border-left-color:var(--t4);}
+  .sec-header.s5{border-left-color:var(--t5);}
+  .sec-icon{font-size:1.05rem;flex-shrink:0;}
+  .sec-title-block{flex:1;}
+  .sec-title{font-size:.86rem;font-weight:700;}
+  .sec-sub{font-size:.63rem;color:var(--muted);margin-top:2px;}
+  .sec-count{font-size:.66rem;color:var(--muted);background:var(--border);padding:2px 8px;border-radius:10px;white-space:nowrap;}
+  .chevron{color:var(--muted);font-size:.76rem;transition:transform .2s;}
+  .sec-header.collapsed .chevron{transform:rotate(-90deg);}
+  .items-wrap{display:flex;flex-direction:column;gap:5px;}
+  .items-wrap.hidden{display:none;}
+
+  /* ITEM */
+  .item{background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:10px 12px;cursor:pointer;transition:border-color .2s,background .2s;}
+  .item:hover{border-color:#2a3155;}
+  .item.checked{border-color:rgba(200,168,75,.4);background:rgba(200,168,75,.05);}
+  .item.checked .item-q{color:var(--accent2);}
+  .ind-tab .item.checked{border-color:rgba(91,141,217,.4);background:rgba(91,141,217,.05);}
+  .ind-tab .item.checked .item-q{color:#82b4ff;}
+  .item-top{display:flex;align-items:flex-start;gap:9px;}
+  .checkbox{width:18px;height:18px;border-radius:5px;border:2px solid var(--border);flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;font-size:.62rem;transition:all .2s;}
+  .item.checked .checkbox{background:var(--t1);border-color:var(--t1);color:#000;}
+  .ind-tab .item.checked .checkbox{background:var(--ind);border-color:var(--ind);color:#fff;}
+  .item-q{font-size:.81rem;font-weight:500;line-height:1.5;flex:1;}
+  .item-hint{font-size:.7rem;color:var(--muted);margin-top:6px;margin-left:27px;line-height:1.6;display:none;}
+  .item.checked .item-hint{display:block;}
+  .item-talk{display:none;margin-top:8px;margin-left:27px;}
+  .item.checked .item-talk{display:block;}
+  .talk-label{font-size:.58rem;letter-spacing:1.5px;text-transform:uppercase;color:var(--accent);margin-bottom:4px;font-weight:700;}
+  .ind-tab .talk-label{color:var(--ind);}
+  .talk-bubble{background:rgba(200,168,75,.07);border:1px solid rgba(200,168,75,.18);border-radius:9px;padding:8px 11px;font-size:.77rem;line-height:1.65;color:#c8d8e8;font-style:italic;}
+  .ind-tab .talk-bubble{background:rgba(91,141,217,.07);border-color:rgba(91,141,217,.2);}
+  .talk-bubble::before{content:'💬 ';font-style:normal;}
+  .item-tags{display:flex;flex-wrap:wrap;gap:4px;margin-top:7px;margin-left:27px;}
+  .item-tag{font-size:.59rem;padding:2px 7px;border-radius:9px;font-weight:700;}
+  .item-tag.t1{background:rgba(200,168,75,.15);color:var(--t1);}
+  .item-tag.t2{background:rgba(212,123,63,.15);color:var(--t2);}
+  .item-tag.t3{background:rgba(91,141,217,.15);color:var(--t3);}
+  .item-tag.t4{background:rgba(124,108,192,.15);color:var(--t4);}
+  .item-tag.t5{background:rgba(76,175,130,.15);color:var(--t5);}
+
+  /* RESULT */
+  .result-panel{margin:14px 14px 0;background:var(--surface2);border:1px solid var(--border);border-radius:13px;padding:16px;display:none;}
+  .result-panel.visible{display:block;}
+  .result-title{font-size:.66rem;letter-spacing:2px;text-transform:uppercase;color:var(--accent);margin-bottom:12px;font-weight:700;}
+  .ind-tab .result-title{color:var(--ind);}
+  .result-list{display:flex;flex-direction:column;gap:11px;}
+  .result-card{background:var(--surface);border-radius:11px;overflow:hidden;border:1px solid var(--border);}
+  .result-card-header{display:flex;align-items:center;gap:9px;padding:10px 13px;}
+  .result-card-header.rc1{border-left:3px solid var(--t1);}
+  .result-card-header.rc2{border-left:3px solid var(--t2);}
+  .result-card-header.rc3{border-left:3px solid var(--t3);}
+  .result-card-header.rc4{border-left:3px solid var(--t4);}
+  .result-card-header.rc5{border-left:3px solid var(--t5);}
+  .result-card-icon{font-size:1rem;}
+  .result-card-title{font-size:.83rem;font-weight:700;flex:1;}
+  .result-card-badge{font-size:.6rem;padding:2px 7px;border-radius:9px;font-weight:700;}
+  .rc1 .result-card-badge{background:rgba(200,168,75,.15);color:var(--t1);}
+  .rc2 .result-card-badge{background:rgba(212,123,63,.15);color:var(--t2);}
+  .rc3 .result-card-badge{background:rgba(91,141,217,.15);color:var(--t3);}
+  .rc4 .result-card-badge{background:rgba(124,108,192,.15);color:var(--t4);}
+  .rc5 .result-card-badge{background:rgba(76,175,130,.15);color:var(--t5);}
+  .result-card-body{padding:10px 13px;border-top:1px solid var(--border);}
+  .result-situation{font-size:.74rem;color:var(--muted);line-height:1.6;margin-bottom:8px;}
+  .talk-scripts{display:flex;flex-direction:column;gap:6px;}
+  .talk-script-item{background:rgba(200,168,75,.06);border:1px solid rgba(200,168,75,.14);border-radius:8px;padding:8px 11px;}
+  .ind-tab .talk-script-item{background:rgba(91,141,217,.06);border-color:rgba(91,141,217,.15);}
+  .talk-script-label{font-size:.58rem;letter-spacing:1px;color:var(--accent);font-weight:700;text-transform:uppercase;margin-bottom:4px;}
+  .ind-tab .talk-script-label{color:var(--ind);}
+  .talk-script-text{font-size:.77rem;line-height:1.65;color:#c8d8e8;font-style:italic;}
+  .talk-script-text::before{content:'💬 ';font-style:normal;}
+
+  .tab-btn.active-know{color:#a78bfa;background:rgba(167,139,250,.07);}
+  .tab-btn.active-know::after{content:'';position:absolute;bottom:-2px;left:0;right:0;height:2px;background:#a78bfa;}
+
+  /* KNOWLEDGE TAB */
+  .know-tab{padding:14px 14px 0;}
+  .know-search{width:100%;background:var(--surface);border:1px solid var(--border);border-radius:11px;padding:10px 14px;color:var(--text);font-size:.82rem;font-family:'Noto Sans JP',sans-serif;outline:none;margin-bottom:14px;}
+  .know-search:focus{border-color:#a78bfa;}
+  .know-search::placeholder{color:var(--muted);}
+  .know-cats{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:14px;}
+  .know-cat-btn{padding:4px 12px;border-radius:20px;font-size:.68rem;font-weight:700;border:1px solid var(--border);background:transparent;color:var(--muted);cursor:pointer;font-family:'Noto Sans JP',sans-serif;transition:all .2s;}
+  .know-cat-btn.active{border-color:#a78bfa;color:#a78bfa;background:rgba(167,139,250,.1);}
+  .know-cards{display:flex;flex-direction:column;gap:10px;padding-bottom:40px;}
+  .know-card{background:var(--surface);border:1px solid var(--border);border-radius:13px;overflow:hidden;transition:border-color .2s;}
+  .know-card.hidden-card{display:none;}
+  .know-card-header{display:flex;align-items:center;gap:10px;padding:12px 14px;cursor:pointer;user-select:none;}
+  .know-card-header.kc-souzoku{border-left:3px solid var(--t1);}
+  .know-card-header.kc-zoyo{border-left:3px solid var(--t2);}
+  .know-card-header.kc-iryo{border-left:3px solid var(--t3);}
+  .know-card-header.kc-nenkin{border-left:3px solid var(--t5);}
+  .know-card-header.kc-hoken{border-left:3px solid var(--t4);}
+  .know-card-header.kc-kigyou{border-left:3px solid #e87c7c;}
+  .know-card-icon{font-size:1.1rem;flex-shrink:0;}
+  .know-card-title-block{flex:1;}
+  .know-card-title{font-size:.86rem;font-weight:700;}
+  .know-card-cat{font-size:.62rem;color:var(--muted);margin-top:2px;}
+  .know-chevron{color:var(--muted);font-size:.76rem;transition:transform .2s;}
+  .know-card.collapsed .know-chevron{transform:rotate(-90deg);}
+  .know-card-body{padding:12px 14px;border-top:1px solid var(--border);display:block;}
+  .know-card.collapsed .know-card-body{display:none;}
+  .know-table{width:100%;border-collapse:collapse;font-size:.78rem;margin-bottom:8px;}
+  .know-table th{text-align:left;color:var(--muted);font-size:.65rem;letter-spacing:.5px;padding:5px 8px;border-bottom:1px solid var(--border);font-weight:600;}
+  .know-table td{padding:7px 8px;border-bottom:1px solid rgba(255,255,255,.04);line-height:1.5;vertical-align:top;}
+  .know-table tr:last-child td{border-bottom:none;}
+  .know-table .val{font-weight:700;color:var(--accent2);}
+  .know-table .val.blue{color:#82b4ff;}
+  .know-table .val.green{color:#6fcf97;}
+  .know-table .val.orange{color:#f2994a;}
+  .know-table .val.purple{color:#bb87fc;}
+  .know-note{font-size:.72rem;color:var(--muted);line-height:1.65;margin-top:6px;padding:8px 10px;background:rgba(255,255,255,.03);border-radius:8px;border-left:2px solid var(--border);}
+  .know-point{font-size:.72rem;color:#c8d8e8;line-height:1.65;margin-top:6px;padding:8px 10px;background:rgba(167,139,250,.06);border:1px solid rgba(167,139,250,.15);border-radius:8px;}
+  .know-point::before{content:'💡 ';}
+  .reset-btn{display:block;margin:13px 14px 0;background:transparent;border:1px solid var(--border);color:var(--muted);padding:9px;border-radius:10px;font-size:.74rem;cursor:pointer;width:calc(100% - 28px);font-family:'Noto Sans JP',sans-serif;transition:border-color .2s;}
+  .reset-btn:hover{border-color:var(--accent);color:var(--accent);}
+  .ind-tab .reset-btn:hover{border-color:var(--ind);color:var(--ind);}
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="hero-label">TOT営業ツール</div>
+  <h1>現状把握チェックリスト</h1>
+  <p>チェックを入れると切り口トークが表示されます。ヒアリング中に使える実践ツールです。</p>
+</div>
+
+<div class="tab-bar">
+  <button class="tab-btn active-corp" id="tab-corp" onclick="switchTab('corp')">🏢 法人</button>
+  <button class="tab-btn" id="tab-ind" onclick="switchTab('ind')">👤 個人</button>
+  <button class="tab-btn" id="tab-know" onclick="switchTab('know')">📚 知識集</button>
+</div>
+
+<!-- ═══════ 法人タブ ═══════ -->
+<div class="tab-pane active" id="pane-corp">
+  <div class="score-panel">
+    <div class="score-row"><span class="score-label">チェック済み / 全項目</span><span class="score-value" id="corp-score">0 / 0</span></div>
+    <div class="progress-track"><div class="progress-fill corp-fill" id="corp-fill"></div></div>
+  </div>
+  <div class="opp-panel">
+    <div class="opp-tag t1" id="ctag-退職金">👑 役員退職金</div>
+    <div class="opp-tag t1" id="ctag-相続">🏛 相続対策</div>
+    <div class="opp-tag t2" id="ctag-事業承継">🔄 事業承継</div>
+    <div class="opp-tag t2" id="ctag-キーマン">🛡 キーマン保険</div>
+    <div class="opp-tag t3" id="ctag-福利厚生">👥 福利厚生</div>
+    <div class="opp-tag t4" id="ctag-資産運用">💹 資産運用</div>
+  </div>
+
+  <div class="section">
+    <div class="sec-header" onclick="toggleSec(this)">
+      <span class="sec-icon">🏢</span>
+      <div class="sec-title-block"><div class="sec-title">会社の基本情報</div><div class="sec-sub">規模・業歴・財務の概況を把握する</div></div>
+      <span class="sec-count" id="cc0">0/5</span><span class="chevron">▾</span>
+    </div>
+    <div class="items-wrap" id="csec-0">
+      <div class="item" onclick="ctoggle(this)" data-tags='["退職金","キーマン"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">創業・設立から何年になりますか？</div></div>
+        <div class="item-hint">業歴が長いほど退職金の積立期間が取れる。10年以上なら即提案ゾーン。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「〇年ですか。その〇年分の社長の貢献を退職金として積み立てる仕組みはされていますか？業歴が長いほど受け取れる額が大きくなるんですよ。」</div></div>
+        <div class="item-tags"><span class="item-tag t1">役員退職金</span><span class="item-tag t2">キーマン</span></div>
+      </div>
+      <div class="item" onclick="ctoggle(this)" data-tags='["退職金","キーマン","事業承継"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">現在の売上規模・従業員数はどのくらいですか？</div></div>
+        <div class="item-hint">売上3億円以上・従業員30名以上なら法人提案の全カテゴリが対象になる。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「売上〇億円・〇名規模ですね。その規模だと社長の万が一が会社に与えるインパクトも相当大きい。そのリスクへの備えが整っているか、一度確認させていただけますか？」</div></div>
+        <div class="item-tags"><span class="item-tag t1">役員退職金</span><span class="item-tag t2">キーマン</span><span class="item-tag t2">事業承継</span></div>
+      </div>
+      <div class="item" onclick="ctoggle(this)" data-tags='["退職金"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">毎年の利益（経常利益）はどのくらい出ていますか？</div></div>
+        <div class="item-hint">黒字が出ていれば法人税の節税ニーズあり。退職金準備の財源確認につながる。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「毎年〇百万円の利益が出ているんですね。その利益、今は法人税で持っていかれているわけですが、一部を社長自身の退職金として積み立てる方法があります。試算だけ見てみますか？」</div></div>
+        <div class="item-tags"><span class="item-tag t1">役員退職金</span></div>
+      </div>
+      <div class="item" onclick="ctoggle(this)" data-tags='["キーマン"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">会社の借入金（金融機関への融資残高）はどのくらいですか？</div></div>
+        <div class="item-hint">借入がある＝キーマン保険の必要額の根拠になる。「万が一の時に誰が返すか」を引き出す。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「〇億円の借入がある中で、もし社長に万が一のことがあったとき、その返済と事業継続の資金、誰がどう手当てするか、実は対策されていない会社がほとんどなんです。」</div></div>
+        <div class="item-tags"><span class="item-tag t2">キーマン</span></div>
+      </div>
+      <div class="item" onclick="ctoggle(this)" data-tags='["事業承継"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">個人保証（連帯保証）には入っていますか？</div></div>
+        <div class="item-hint">個人保証がある＝ご家族への連帯リスクあり。緊急性の高い提案に直結する。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「個人保証に入っているんですね。社長に万が一のことがあると、その保証が奥様に引き継がれる可能性があります。ご存知でしたか？それだけは先に手を打っておいた方がいい。」</div></div>
+        <div class="item-tags"><span class="item-tag t2">事業承継</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-header s2" onclick="toggleSec(this)">
+      <span class="sec-icon">👤</span>
+      <div class="sec-title-block"><div class="sec-title">社長自身のこと</div><div class="sec-sub">年齢・報酬・引退プランを把握する</div></div>
+      <span class="sec-count" id="cc1">0/5</span><span class="chevron">▾</span>
+    </div>
+    <div class="items-wrap" id="csec-1">
+      <div class="item" onclick="ctoggle(this)" data-tags='["退職金","相続"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">現在、何歳でいらっしゃいますか？</div></div>
+        <div class="item-hint">50代以上なら退職金・相続・事業承継の全てが「今すぐ」の話になる。緊急性の根拠。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「〇歳でいらっしゃるんですね。退職金・相続・事業承継の対策は早く始めるほど手取りが変わります。あと〇年で引退をお考えなら、今が一番いいタイミングです。」</div></div>
+        <div class="item-tags"><span class="item-tag t1">役員退職金</span><span class="item-tag t1">相続対策</span></div>
+      </div>
+      <div class="item" onclick="ctoggle(this)" data-tags='["退職金"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">役員報酬は月額いくらですか？</div></div>
+        <div class="item-hint">報酬が高いほど功績倍率計算で受け取れる退職金が大きくなる。提案規模の根拠になる。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「月〇万円ですね。役員退職金の上限は『最終報酬月額×勤続年数×功績倍率3倍』で決まります。今の報酬で計算すると、社長は最大〇〇〇万円受け取れます。今どのくらい積み上がってますか？」</div></div>
+        <div class="item-tags"><span class="item-tag t1">役員退職金</span></div>
+      </div>
+      <div class="item" onclick="ctoggle(this)" data-tags='["退職金"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">何歳くらいに引退・バトンタッチを考えていますか？</div></div>
+        <div class="item-hint">退職時期が決まれば保険の設計期間が確定する。「あと〇年しかない」という緊急性を生む。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「〇歳でのご引退をお考えなら、今から〇年しかない。退職金は早く始めるほど返戻率が上がるので、正直今すぐ動いた方がいいです。今日、数字出せますよ。」</div></div>
+        <div class="item-tags"><span class="item-tag t1">役員退職金</span></div>
+      </div>
+      <div class="item" onclick="ctoggle(this)" data-tags='["退職金","相続"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">退職後の生活資金・老後の収入は何で賄う予定ですか？</div></div>
+        <div class="item-hint">「退職金だけ」という方が多い。個人資産の厚みと保険ニーズの両方を確認できる。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「退職金と年金でお考えなんですね。引退後に月いくらくらい必要か試算されたことはありますか？意外と今の準備では不足しているケースが多いので、一緒に確認させていただけますか？」</div></div>
+        <div class="item-tags"><span class="item-tag t1">役員退職金</span><span class="item-tag t1">相続対策</span></div>
+      </div>
+      <div class="item" onclick="ctoggle(this)" data-tags='["退職金"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">現在、会社からの退職金準備は何かされていますか？</div></div>
+        <div class="item-hint">「何もしていない」が8割。現状の空白を確認してから提案に進む。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「まだ何も手をつけていないんですね。実は9割近くの経営者がそうなんですよ。でも今から始めれば十分間に合います。今日、どのくらい積み立てられるか試算だけでも見てみませんか？」</div></div>
+        <div class="item-tags"><span class="item-tag t1">役員退職金</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-header s3" onclick="toggleSec(this)">
+      <span class="sec-icon">🏛</span>
+      <div class="sec-title-block"><div class="sec-title">個人資産・相続</div><div class="sec-sub">資産規模と相続対策の有無を確認</div></div>
+      <span class="sec-count" id="cc2">0/5</span><span class="chevron">▾</span>
+    </div>
+    <div class="items-wrap" id="csec-2">
+      <div class="item" onclick="ctoggle(this)" data-tags='["相続"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">個人資産（不動産・金融資産含む）はざっくりどのくらいですか？</div></div>
+        <div class="item-hint">3,000万円超で相続税の基礎控除を超える可能性あり。試算を見せるトリガーになる。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「〇億円お持ちなんですね。相続税の基礎控除は『3,000万円+600万円×法定相続人数』なので、今の資産規模だと相続税が〇〇〇万円くらいかかる可能性があります。試算、今日出しましょうか？」</div></div>
+        <div class="item-tags"><span class="item-tag t1">相続対策</span></div>
+      </div>
+      <div class="item" onclick="ctoggle(this)" data-tags='["相続"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">不動産（自宅・投資用・事業用）はお持ちですか？</div></div>
+        <div class="item-hint">不動産は相続税が高く現金で払いにくい。納税資金としての保険ニーズに直結する。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「不動産をお持ちなんですね。相続税は現金で払わないといけないのに、財産の大半が不動産だと、土地を売らざるを得なくなるケースが多いんです。その納税資金を今から保険で準備する方法があります。」</div></div>
+        <div class="item-tags"><span class="item-tag t1">相続対策</span></div>
+      </div>
+      <div class="item" onclick="ctoggle(this)" data-tags='["相続"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">相続税がいくらかかるか、試算されたことはありますか？</div></div>
+        <div class="item-hint">「ない」と言ったら今その場で概算を出す。一気に自分ごとになる最強の切り口。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「試算されたことはないんですね。では今ここで計算式に当てはめて概算を出してみましょう。（電卓で試算）…〇〇〇万円くらいになります。これ、現金で準備できますか？」</div></div>
+        <div class="item-tags"><span class="item-tag t1">相続対策</span></div>
+      </div>
+      <div class="item" onclick="ctoggle(this)" data-tags='["相続","資産運用"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">生前贈与はすでにされていますか？</div></div>
+        <div class="item-hint">贈与しているなら「保険を使った移転」との比較提案。していないなら両方を提案できる。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「年間110万円の贈与はされているんですね。ただ、この資産規模だと贈与だけでは追いつかない可能性があります。保険を使うと贈与より効率よく資産を移転できる方法があって、比較してみませんか？」</div></div>
+        <div class="item-tags"><span class="item-tag t1">相続対策</span><span class="item-tag t4">資産運用</span></div>
+      </div>
+      <div class="item" onclick="ctoggle(this)" data-tags='["相続"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">遺言書は作成されていますか？</div></div>
+        <div class="item-hint">ない場合、遺産分割トラブルリスクがある。税理士・弁護士連携提案の入口にもなる。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「遺言書はまだなんですね。遺言書がないと法定相続になって、全員の合意が必要になります。特に事業用の不動産がある場合、揉めるケースが多いです。保険と遺言書を一緒に整理しませんか？」</div></div>
+        <div class="item-tags"><span class="item-tag t1">相続対策</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-header s4" onclick="toggleSec(this)">
+      <span class="sec-icon">🔄</span>
+      <div class="sec-title-block"><div class="sec-title">事業承継・後継者</div><div class="sec-sub">株・後継者・売却プランを確認する</div></div>
+      <span class="sec-count" id="cc3">0/5</span><span class="chevron">▾</span>
+    </div>
+    <div class="items-wrap" id="csec-3">
+      <div class="item" onclick="ctoggle(this)" data-tags='["事業承継"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">会社を誰かに継がせる予定はありますか？（親族・従業員・M&A）</div></div>
+        <div class="item-hint">継がせる＝株の評価額対策。M&A＝株価整理と手取り最大化。どちらも保険が機能する。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「息子さんに継がせるご予定なんですね。今の株価のまま相続すると、息子さんが支払う相続税が相当な額になるケースが多い。今のうちに株価を下げる対策をしておくと、手取りが全然変わりますよ。」</div></div>
+        <div class="item-tags"><span class="item-tag t2">事業承継</span></div>
+      </div>
+      <div class="item" onclick="ctoggle(this)" data-tags='["事業承継"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">会社の株（自社株）は今どなたが持っていますか？</div></div>
+        <div class="item-hint">社長が100%持っている場合、相続で全株が動く。評価額次第で莫大な税負担が発生する。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「社長が100%お持ちなんですね。となると、相続の時に全株が一気に動きます。評価額次第では、相続税を払うために会社の資産を切り崩さないといけなくなるケースも。今の評価額はご存知ですか？」</div></div>
+        <div class="item-tags"><span class="item-tag t2">事業承継</span></div>
+      </div>
+      <div class="item" onclick="ctoggle(this)" data-tags='["事業承継","相続"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">自社株の評価額、ご存知ですか？（税理士から聞いていますか？）</div></div>
+        <div class="item-hint">評価額を知らない経営者が多い。「調べましょうか」と言うだけで次のアポが取れる。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「まだ確認されていないんですね。では税理士の先生と一緒に評価額を出してみましょうか。実際の数字が出ると、何をすべきかが一気に明確になります。次回、先生も交えてお時間いただけますか？」</div></div>
+        <div class="item-tags"><span class="item-tag t2">事業承継</span><span class="item-tag t1">相続対策</span></div>
+      </div>
+      <div class="item" onclick="ctoggle(this)" data-tags='["事業承継"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">後継者候補はいますか？その方は引き継ぐ準備ができていますか？</div></div>
+        <div class="item-hint">後継者育成期間中のキーマンリスクも浮上する。複合提案の入口。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「息子さんが候補なんですね。引き継ぎまでの数年間、社長に万が一のことがあっても事業が止まらないようにする仕組みが必要です。その間の『つなぎ』の備えも一緒に考えておきませんか？」</div></div>
+        <div class="item-tags"><span class="item-tag t2">事業承継</span></div>
+      </div>
+      <div class="item" onclick="ctoggle(this)" data-tags='["事業承継","キーマン"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">もし社長に万が一のことがあったとき、会社はどうなりますか？</div></div>
+        <div class="item-hint">最もインパクトのある質問。事業継続リスク・キーマン・株の帰属が一気に出てくる。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「失礼な質問かもしれないんですが、もし社長に万が一のことがあったとき、会社はどうなりますか？銀行の借入・従業員・取引先…。そのリスクを全部引き受けるのは、今のままだと奥様かもしれないんですよ。」</div></div>
+        <div class="item-tags"><span class="item-tag t2">事業承継</span><span class="item-tag t2">キーマン</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-header s5" onclick="toggleSec(this)">
+      <span class="sec-icon">👥</span>
+      <div class="sec-title-block"><div class="sec-title">従業員・福利厚生</div><div class="sec-sub">採用・定着・幹部への備えを確認</div></div>
+      <span class="sec-count" id="cc4">0/4</span><span class="chevron">▾</span>
+    </div>
+    <div class="items-wrap" id="csec-4">
+      <div class="item" onclick="ctoggle(this)" data-tags='["福利厚生"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">従業員の退職金制度はありますか？（中退共・企業年金など）</div></div>
+        <div class="item-hint">中退共のみの会社が多い。より柔軟な企業型DC・団体保険との組み合わせ提案ができる。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「中退共だけなんですね。実は中退共は柔軟性が低くて、幹部社員と一般社員で差をつけられないんです。団体保険や企業年金と組み合わせると、採用・定着にも効いてきますよ。」</div></div>
+        <div class="item-tags"><span class="item-tag t3">福利厚生</span></div>
+      </div>
+      <div class="item" onclick="ctoggle(this)" data-tags='["福利厚生"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">採用・定着に課題は感じていますか？</div></div>
+        <div class="item-hint">「福利厚生の充実」を採用・定着の切り口として保険を提案できる。経営課題と直結させる。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「採用が難しくなっているんですね。求人票に『団体生命保険加入・退職金制度あり』と書けるだけで応募が変わる会社があって。月数万円のコストで会社の魅力を上げる方法があります。」</div></div>
+        <div class="item-tags"><span class="item-tag t3">福利厚生</span></div>
+      </div>
+      <div class="item" onclick="ctoggle(this)" data-tags='["福利厚生","キーマン"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">番頭・専務など、社長の次に重要な人物はいますか？</div></div>
+        <div class="item-hint">幹部社員の退職慰労金・キーマン保険の提案につながる。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「〇〇さんがいないと回らないと。では逆に、その方に万が一のことがあったときの備えはありますか？退職慰労金の準備も含めて、幹部の方も守る仕組みが会社のリスク管理には必要ですよ。」</div></div>
+        <div class="item-tags"><span class="item-tag t3">福利厚生</span><span class="item-tag t2">キーマン</span></div>
+      </div>
+      <div class="item" onclick="ctoggle(this)" data-tags='["福利厚生"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">グループ保険（団体保険）は導入していますか？</div></div>
+        <div class="item-hint">未導入なら全従業員分の提案チャンス。既存なら内容の見直しで単価アップできる。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「まだ導入されていないんですね。従業員〇名規模だと、団体保険は個人で入るより保険料がかなり割安になります。会社負担にすると福利厚生費にもなって、一石二鳥なんですよ。一度見積もり出してみましょうか？」</div></div>
+        <div class="item-tags"><span class="item-tag t3">福利厚生</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="result-panel" id="corp-result">
+    <div class="result-title">🎯 浮上した提案の切り口 ＆ トーク集</div>
+    <div class="result-list" id="corp-result-list"></div>
+  </div>
+  <button class="reset-btn" onclick="resetCorp()">↺ 法人タブをリセット</button>
+</div>
+
+<!-- ═══════ 個人タブ ═══════ -->
+<div class="tab-pane ind-tab" id="pane-ind">
+  <div class="score-panel">
+    <div class="score-row"><span class="score-label">チェック済み / 全項目</span><span class="score-value ind-val" id="ind-score">0 / 0</span></div>
+    <div class="progress-track"><div class="progress-fill ind-fill" id="ind-fill"></div></div>
+  </div>
+  <div class="opp-panel">
+    <div class="opp-tag t3" id="itag-死亡保障">🛡 死亡・収入保障</div>
+    <div class="opp-tag t3" id="itag-医療">🏥 医療・就業不能</div>
+    <div class="opp-tag t1" id="itag-教育">🎓 教育資金</div>
+    <div class="opp-tag t1" id="itag-老後">🌅 老後・資産形成</div>
+    <div class="opp-tag t2" id="itag-相続">🏛 相続・贈与</div>
+    <div class="opp-tag t5" id="itag-見直し">🔄 保険見直し</div>
+  </div>
+
+  <div class="section">
+    <div class="sec-header s3" onclick="toggleSec(this)">
+      <span class="sec-icon">👨‍👩‍👧</span>
+      <div class="sec-title-block"><div class="sec-title">家族構成・ライフステージ</div><div class="sec-sub">現在の状況と将来の変化を把握する</div></div>
+      <span class="sec-count" id="ic0">0/5</span><span class="chevron">▾</span>
+    </div>
+    <div class="items-wrap" id="isec-0">
+      <div class="item" onclick="itoggle(this)" data-tags='["死亡保障","教育"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">ご結婚されていますか？お子さんはいらっしゃいますか？</div></div>
+        <div class="item-hint">既婚・子あり＝死亡保障・教育資金・収入保障の3つが一気に浮上する。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「お子さんが〇歳なんですね。万が一の時、奥様とお子さんが生活に困らないための備えはできていますか？今の保険でどのくらいカバーできているか、一緒に確認させていただけますか？」</div></div>
+        <div class="item-tags"><span class="item-tag t3">死亡保障</span><span class="item-tag t1">教育資金</span></div>
+      </div>
+      <div class="item" onclick="itoggle(this)" data-tags='["教育"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">お子さんの教育プラン（大学進学など）はお考えですか？</div></div>
+        <div class="item-hint">大学進学を想定するなら18歳までに300〜500万円が目安。準備期間から逆算が必要。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「大学まで考えていらっしゃるんですね。私立理系だと4年間で600万円以上かかる時代です。今から〇年ある。学資保険か貯蓄型保険で計画的に準備しておくと安心ですよ。」</div></div>
+        <div class="item-tags"><span class="item-tag t1">教育資金</span></div>
+      </div>
+      <div class="item" onclick="itoggle(this)" data-tags='["死亡保障","老後"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">住宅ローンはありますか？残高はどのくらいですか？</div></div>
+        <div class="item-hint">ローンあり＝団信の確認＋家族への収入保障ニーズが浮上する。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「残〇年で〇〇〇万円のローンがあるんですね。団信は入っていますか？ただ、団信はローンを消してくれるだけで、その後の生活費は別途必要です。その部分の備えはいかがですか？」</div></div>
+        <div class="item-tags"><span class="item-tag t3">死亡保障</span><span class="item-tag t1">老後</span></div>
+      </div>
+      <div class="item" onclick="itoggle(this)" data-tags='["老後"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">ご両親の介護について、将来的に考えていることはありますか？</div></div>
+        <div class="item-hint">介護リスクを意識していると、老後資金・介護保険の両提案ができる。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「介護のことが気になっているんですね。施設入居だと月20〜30万円かかるケースが多い。ご自身の将来も含めて、介護が必要になった時の資金をどう準備するか、一緒に考えてみませんか？」</div></div>
+        <div class="item-tags"><span class="item-tag t1">老後</span></div>
+      </div>
+      <div class="item" onclick="itoggle(this)" data-tags='["死亡保障","医療"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">現在のご職業・雇用形態を教えていただけますか？</div></div>
+        <div class="item-hint">会社員か自営業かで公的保障の手厚さが大きく異なる。自営業者は手薄な傾向。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「自営業でいらっしゃるんですね。実は自営業の方は会社員と違って、労災・傷病手当金がありません。病気やケガで働けなくなった時、収入がゼロになるリスクへの備えはされていますか？」</div></div>
+        <div class="item-tags"><span class="item-tag t3">死亡保障</span><span class="item-tag t3">医療・就業不能</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-header s2" onclick="toggleSec(this)">
+      <span class="sec-icon">📋</span>
+      <div class="sec-title-block"><div class="sec-title">現在の保険・保障の状況</div><div class="sec-sub">過不足・見直しの余地を確認する</div></div>
+      <span class="sec-count" id="ic1">0/5</span><span class="chevron">▾</span>
+    </div>
+    <div class="items-wrap" id="isec-1">
+      <div class="item" onclick="itoggle(this)" data-tags='["見直し","死亡保障"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">今加入している保険の内容を把握していますか？</div></div>
+        <div class="item-hint">把握していない方が多い。「一緒に確認する」だけで次のアポが取れる。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「詳しくはわからないとのことで、実はそういう方がほとんどなんです。保険証券を一緒に見てみましょう。今の保障で足りているか、逆に払いすぎていないかを確認するだけでも価値がありますよ。」</div></div>
+        <div class="item-tags"><span class="item-tag t5">保険見直し</span><span class="item-tag t3">死亡保障</span></div>
+      </div>
+      <div class="item" onclick="itoggle(this)" data-tags='["見直し"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">今の保険に加入したのはいつですか？見直しはされましたか？</div></div>
+        <div class="item-hint">5年以上前なら見直しの余地あり。ライフステージの変化に対応していない可能性が高い。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「〇年前に加入したままなんですね。その後、結婚・出産・住宅購入など状況が変わっていると、保障の過不足が出ているケースが多いです。今の状況に合わせて整理しませんか？」</div></div>
+        <div class="item-tags"><span class="item-tag t5">保険見直し</span></div>
+      </div>
+      <div class="item" onclick="itoggle(this)" data-tags='["死亡保障"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">万が一のとき、ご家族が必要とする生活費はどのくらいか試算されましたか？</div></div>
+        <div class="item-hint">試算していない方が多い。「死亡保障の適正額」を一緒に出すだけで提案につながる。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「試算されたことはないんですね。では一緒に計算してみましょう。お子さんが独立するまでの生活費・教育費・住居費を足すと、必要な保障額は〇〇〇〇万円になります。今の保険で足りていますか？」</div></div>
+        <div class="item-tags"><span class="item-tag t3">死亡保障</span></div>
+      </div>
+      <div class="item" onclick="itoggle(this)" data-tags='["医療"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">医療保険・がん保険には加入していますか？</div></div>
+        <div class="item-hint">未加入か古い商品の場合、新しい保障（先進医療・就業不能）への見直し提案ができる。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「10年以上前の医療保険だと、今の治療に対応していないケースが多いです。特に先進医療・がん治療は技術が進んで保障内容が大きく変わっています。今の保険でカバーできているか確認しましょうか？」</div></div>
+        <div class="item-tags"><span class="item-tag t3">医療・就業不能</span></div>
+      </div>
+      <div class="item" onclick="itoggle(this)" data-tags='["医療"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">病気・ケガで長期間働けなくなった場合の収入は確保できますか？</div></div>
+        <div class="item-hint">就業不能リスクは死亡リスクより発生確率が高い。多くの方が未対策。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「会社員の方だと傷病手当金が最大18ヶ月出ますが、その後は無収入になります。3ヶ月以上働けなくなったら生活はどうなるか、一度シミュレーションしてみませんか？」</div></div>
+        <div class="item-tags"><span class="item-tag t3">医療・就業不能</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-header" onclick="toggleSec(this)">
+      <span class="sec-icon">🌅</span>
+      <div class="sec-title-block"><div class="sec-title">老後・資産形成</div><div class="sec-sub">年金・貯蓄・投資の現状を把握する</div></div>
+      <span class="sec-count" id="ic2">0/5</span><span class="chevron">▾</span>
+    </div>
+    <div class="items-wrap" id="isec-2">
+      <div class="item" onclick="itoggle(this)" data-tags='["老後"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">老後に月いくらあれば生活できると思いますか？年金でまかなえそうですか？</div></div>
+        <div class="item-hint">年金だけでは不足するケースが多い。「老後不足額」を具体的に自分ごとにさせる。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「月〇万円ほど必要と思っているんですね。年金の受給見込みはねんきん定期便で確認できます。不足分を毎月いくら積み立てれば補えるか、一緒に計算してみましょうか？」</div></div>
+        <div class="item-tags"><span class="item-tag t1">老後・資産形成</span></div>
+      </div>
+      <div class="item" onclick="itoggle(this)" data-tags='["老後"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">iDeCo・NISAなど、税制優遇の制度は活用されていますか？</div></div>
+        <div class="item-hint">未活用なら節税メリットと合わせて保険との組み合わせを提案できる。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「iDeCoもNISAもまだなんですね。iDeCoは掛け金が全額所得控除になるので、税負担を下げながら老後資金を積み立てられます。保険との組み合わせで効率よくカバーする方法を一緒に考えましょうか？」</div></div>
+        <div class="item-tags"><span class="item-tag t1">老後・資産形成</span></div>
+      </div>
+      <div class="item" onclick="itoggle(this)" data-tags='["老後"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">現在の貯蓄額・毎月の貯蓄ペースを教えていただけますか？</div></div>
+        <div class="item-hint">貯蓄が少ない＝積立型保険の提案。多い＝一時払いや資産運用型の提案ができる。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「毎月〇万円貯めているんですね。銀行預金だと増えにくい時代なので、同じ金額を保険や投資信託に回すとどのくらい変わるか、比較してみませんか？」</div></div>
+        <div class="item-tags"><span class="item-tag t1">老後・資産形成</span></div>
+      </div>
+      <div class="item" onclick="itoggle(this)" data-tags='["老後"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">外貨建て保険・変額保険など、運用型の保険に関心はありますか？</div></div>
+        <div class="item-hint">関心があれば運用型保険の提案へ。ない場合はリスクを整理して再提案できる。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「円だけだと将来のインフレリスクが気になるところですよね。外貨建て保険は長期で持つことで円安・インフレへのヘッジになります。仕組みだけでも一度見てみますか？」</div></div>
+        <div class="item-tags"><span class="item-tag t1">老後・資産形成</span></div>
+      </div>
+      <div class="item" onclick="itoggle(this)" data-tags='["老後","医療"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">将来、介護が必要になった場合の費用は準備していますか？</div></div>
+        <div class="item-hint">介護費用は平均500万円超とも言われる。多くの方が未対策。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「介護の準備はまだなんですね。施設入居だと月20〜30万円、在宅でも月10万円以上かかることがあります。公的介護保険だけでは足りないので、上乗せ部分をどう準備するかが重要なんですよ。」</div></div>
+        <div class="item-tags"><span class="item-tag t1">老後・資産形成</span><span class="item-tag t3">医療・就業不能</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="sec-header s2" onclick="toggleSec(this)">
+      <span class="sec-icon">🏛</span>
+      <div class="sec-title-block"><div class="sec-title">相続・贈与（個人）</div><div class="sec-sub">資産移転・税負担の有無を確認する</div></div>
+      <span class="sec-count" id="ic3">0/4</span><span class="chevron">▾</span>
+    </div>
+    <div class="items-wrap" id="isec-3">
+      <div class="item" onclick="itoggle(this)" data-tags='["相続"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">ご両親から相続を受ける可能性はありますか？その規模は？</div></div>
+        <div class="item-hint">相続を受ける側の対策も重要。受け取る資産に応じた生命保険の活用を提案できる。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「ご両親の資産が〇億円規模とのことで。相続税がかかる可能性があります。受け取ってから慌てないよう、今から納税資金の準備だけでもしておきませんか？」</div></div>
+        <div class="item-tags"><span class="item-tag t2">相続・贈与</span></div>
+      </div>
+      <div class="item" onclick="itoggle(this)" data-tags='["相続"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">ご自身の資産をお子さんやお孫さんに残したいと思っていますか？</div></div>
+        <div class="item-hint">資産移転の意向あり＝生命保険の非課税枠活用・贈与との比較提案が可能。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「お子さんに残したいと思っているんですね。生命保険の死亡保険金は『500万円×法定相続人数』が非課税になります。今の資産を保険に振り替えるだけで、相続税を合法的に下げられますよ。」</div></div>
+        <div class="item-tags"><span class="item-tag t2">相続・贈与</span></div>
+      </div>
+      <div class="item" onclick="itoggle(this)" data-tags='["相続"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">お子さん・お孫さんへの生前贈与はお考えですか？</div></div>
+        <div class="item-hint">贈与の意向あり＝教育資金贈与の非課税制度・保険との組み合わせを提案できる。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「生前贈与をお考えなんですね。年間110万円の暦年贈与だけでなく、教育資金の一括贈与（最大1,500万円非課税）という制度もあります。保険と組み合わせると効率がよくなりますよ。」</div></div>
+        <div class="item-tags"><span class="item-tag t2">相続・贈与</span></div>
+      </div>
+      <div class="item" onclick="itoggle(this)" data-tags='["相続"]'>
+        <div class="item-top"><div class="checkbox">✓</div><div class="item-q">ご兄弟・親族との間で財産の分け方について話し合いはありますか？</div></div>
+        <div class="item-hint">話し合いがない＝遺産分割トラブルリスクあり。弁護士・税理士連携提案の入口。</div>
+        <div class="item-talk"><div class="talk-label">切り口トーク</div><div class="talk-bubble">「まだ話し合いはされていないんですね。相続トラブルの多くは、遺言書がなくて始まります。保険と遺言書を組み合わせておくと、ご家族への思いやりを形にできますよ。」</div></div>
+        <div class="item-tags"><span class="item-tag t2">相続・贈与</span></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="result-panel" id="ind-result">
+    <div class="result-title">🎯 浮上した提案の切り口 ＆ トーク集</div>
+    <div class="result-list" id="ind-result-list"></div>
+  </div>
+  <button class="reset-btn" onclick="resetInd()">↺ 個人タブをリセット</button>
+</div>
+
+
+<!-- ═══════ 知識集タブ ═══════ -->
+<div class="tab-pane" id="pane-know">
+<div class="know-tab">
+  <input class="know-search" type="text" placeholder="🔍 キーワードで検索（例：基礎控除、高額療養費）" oninput="filterKnow(this.value)">
+  <div class="know-cats">
+    <button class="know-cat-btn active" onclick="filterCat(this,'all')">すべて</button>
+    <button class="know-cat-btn" onclick="filterCat(this,'souzoku')">相続税</button>
+    <button class="know-cat-btn" onclick="filterCat(this,'zoyo')">贈与税</button>
+    <button class="know-cat-btn" onclick="filterCat(this,'iryo')">医療費制度</button>
+    <button class="know-cat-btn" onclick="filterCat(this,'nenkin')">年金・遺族</button>
+    <button class="know-cat-btn" onclick="filterCat(this,'hoken')">保険・非課税</button>
+    <button class="know-cat-btn" onclick="filterCat(this,'kigyou')">法人・税務</button>
+  </div>
+  <div class="know-cards" id="know-cards">
+
+    <!-- 相続税：基礎控除 -->
+    <div class="know-card" data-cat="souzoku" data-search="相続税 基礎控除 非課税 法定相続人">
+      <div class="know-card-header kc-souzoku" onclick="toggleKnow(this)">
+        <span class="know-card-icon">🏛</span>
+        <div class="know-card-title-block"><div class="know-card-title">相続税の基礎控除額</div><div class="know-card-cat">相続税</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>計算式</th><th>金額</th></tr>
+          <tr><td>基礎控除 = 3,000万円 + 600万円 × 法定相続人数</td><td class="val">最低3,600万円〜</td></tr>
+          <tr><td>法定相続人が3人の場合</td><td class="val">4,800万円</td></tr>
+          <tr><td>法定相続人が4人の場合</td><td class="val">5,400万円</td></tr>
+        </table>
+        <div class="know-note">※正式な法定相続人には養子も含まれるが、実子がいる場合は1人、いない場合は2人まで算入可。相続放棄した人も法定相続人の数に含める。</div>
+        <div class="know-point">総資産がこの控除額を超える部分に相続税がかかる。不動産・自社株・預貯金すべて合算して比較する。</div>
+      </div>
+    </div>
+
+    <!-- 相続税：税率 -->
+    <div class="know-card collapsed" data-cat="souzoku" data-search="相続税 税率 速算表 累進">
+      <div class="know-card-header kc-souzoku" onclick="toggleKnow(this)">
+        <span class="know-card-icon">📊</span>
+        <div class="know-card-title-block"><div class="know-card-title">相続税の税率（速算表）</div><div class="know-card-cat">相続税</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>課税遺産総額（各相続人の取得分）</th><th>税率</th><th>控除額</th></tr>
+          <tr><td>1,000万円以下</td><td class="val">10%</td><td>—</td></tr>
+          <tr><td>3,000万円以下</td><td class="val">15%</td><td>50万円</td></tr>
+          <tr><td>5,000万円以下</td><td class="val">20%</td><td>200万円</td></tr>
+          <tr><td>1億円以下</td><td class="val">30%</td><td>700万円</td></tr>
+          <tr><td>2億円以下</td><td class="val">40%</td><td>1,700万円</td></tr>
+          <tr><td>3億円以下</td><td class="val">45%</td><td>2,700万円</td></tr>
+          <tr><td>6億円以下</td><td class="val">50%</td><td>4,200万円</td></tr>
+          <tr><td>6億円超</td><td class="val">55%</td><td>7,200万円</td></tr>
+        </table>
+        <div class="know-note">法定相続分で分割した各相続人の取得額に税率を掛け、合計した後に実際の取得割合で按分する。</div>
+        <div class="know-point">資産3億円・相続人2人（妻＋子1人）の場合、概算で相続税は約4,800万円。妻は配偶者控除で大半が非課税になるが、子の負担が重くなる。</div>
+      </div>
+    </div>
+
+    <!-- 相続税：配偶者控除 -->
+    <div class="know-card collapsed" data-cat="souzoku" data-search="配偶者控除 相続税 1億6千万 軽減">
+      <div class="know-card-header kc-souzoku" onclick="toggleKnow(this)">
+        <span class="know-card-icon">💑</span>
+        <div class="know-card-title-block"><div class="know-card-title">配偶者の税額軽減</div><div class="know-card-cat">相続税</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>控除内容</th><th>上限額</th></tr>
+          <tr><td>配偶者が相続した財産のうち非課税となる額</td><td class="val">1億6,000万円 または 法定相続分（大きい方）</td></tr>
+        </table>
+        <div class="know-note">配偶者の法定相続分は通常1/2。資産が大きいほど法定相続分が有利になる。</div>
+        <div class="know-point">一次相続（夫→妻）では控除が大きく税負担が軽いが、二次相続（妻→子）で一気に税負担が重くなる。一次・二次合計のシミュレーションが重要。</div>
+      </div>
+    </div>
+
+    <!-- 相続税：小規模宅地等の特例 -->
+    <div class="know-card collapsed" data-cat="souzoku" data-search="小規模宅地 特例 330㎡ 80% 居住用 事業用">
+      <div class="know-card-header kc-souzoku" onclick="toggleKnow(this)">
+        <span class="know-card-icon">🏠</span>
+        <div class="know-card-title-block"><div class="know-card-title">小規模宅地等の特例</div><div class="know-card-cat">相続税</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>区分</th><th>限度面積</th><th>減額割合</th></tr>
+          <tr><td>特定居住用宅地（自宅）</td><td class="val">330㎡</td><td class="val">80%減</td></tr>
+          <tr><td>特定事業用宅地</td><td class="val">400㎡</td><td class="val">80%減</td></tr>
+          <tr><td>貸付事業用宅地</td><td class="val">200㎡</td><td class="val">50%減</td></tr>
+        </table>
+        <div class="know-note">自宅を配偶者または同居親族が相続する場合、土地の評価額を最大80%減額できる。条件として申告期限まで居住・保有継続が必要。</div>
+        <div class="know-point">路線価1億円の自宅土地→特例適用後の評価額は2,000万円。この特例の有無だけで相続税が数百万〜数千万円変わる。必ず税理士と確認する。</div>
+      </div>
+    </div>
+
+    <!-- 相続税：生命保険の非課税枠 -->
+    <div class="know-card collapsed" data-cat="souzoku hoken" data-search="生命保険 非課税 500万 相続税 死亡保険金">
+      <div class="know-card-header kc-hoken" onclick="toggleKnow(this)">
+        <span class="know-card-icon">🛡</span>
+        <div class="know-card-title-block"><div class="know-card-title">生命保険の相続税非課税枠</div><div class="know-card-cat">相続税 ／ 保険・非課税</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>計算式</th><th>例（相続人3人）</th></tr>
+          <tr><td>500万円 × 法定相続人の数</td><td class="val">1,500万円 非課税</td></tr>
+        </table>
+        <div class="know-note">死亡保険金は「みなし相続財産」として相続税の課税対象になるが、この非課税枠内は課税されない。受取人が相続人であることが条件。</div>
+        <div class="know-point">預貯金1,500万円と生命保険1,500万円では手取りが大きく違う。顧客が「現金が多い」と言ったら、まずこの非課税枠の活用を提案する。</div>
+      </div>
+    </div>
+
+    <!-- 贈与税：暦年課税 -->
+    <div class="know-card collapsed" data-cat="zoyo" data-search="贈与税 暦年課税 110万 基礎控除 年間">
+      <div class="know-card-header kc-zoyo" onclick="toggleKnow(this)">
+        <span class="know-card-icon">🎁</span>
+        <div class="know-card-title-block"><div class="know-card-title">贈与税の基礎控除（暦年課税）</div><div class="know-card-cat">贈与税</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>内容</th><th>金額・条件</th></tr>
+          <tr><td>年間基礎控除額</td><td class="val">110万円／人</td></tr>
+          <tr><td>特例税率（18歳以上の子・孫への贈与）</td><td class="val">200万円以下10% 〜 3,000万円超55%</td></tr>
+          <tr><td>一般税率（その他）</td><td class="val">200万円以下10% 〜 3,000万円超55%</td></tr>
+        </table>
+        <div class="know-note">2024年改正で相続前7年以内の贈与が相続財産に加算（従来3年）。段階的に7年へ延長中。</div>
+        <div class="know-point">子・孫への毎年の贈与は有効だが、資産規模が大きい場合は保険や教育資金非課税制度との組み合わせが効率的。</div>
+      </div>
+    </div>
+
+    <!-- 贈与税：住宅取得資金 -->
+    <div class="know-card collapsed" data-cat="zoyo" data-search="住宅取得 贈与 非課税 1000万 500万 省エネ">
+      <div class="know-card-header kc-zoyo" onclick="toggleKnow(this)">
+        <span class="know-card-icon">🏡</span>
+        <div class="know-card-title-block"><div class="know-card-title">住宅取得等資金の贈与税非課税</div><div class="know-card-cat">贈与税</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>住宅の種類</th><th>非課税限度額</th></tr>
+          <tr><td>省エネ等住宅（一定の要件あり）</td><td class="val">1,000万円</td></tr>
+          <tr><td>それ以外の住宅</td><td class="val">500万円</td></tr>
+        </table>
+        <div class="know-note">受贈者（もらう側）が18歳以上、合計所得2,000万円以下。贈与者（あげる側）に年齢制限なし。2026年末まで適用予定。</div>
+        <div class="know-point">住宅購入を検討する子・孫がいる顧客への提案で使える。親の資産圧縮＋子の住宅支援の一石二鳥になる。</div>
+      </div>
+    </div>
+
+    <!-- 贈与税：教育資金一括贈与 -->
+    <div class="know-card collapsed" data-cat="zoyo" data-search="教育資金 一括贈与 1500万 非課税 孫 子">
+      <div class="know-card-header kc-zoyo" onclick="toggleKnow(this)">
+        <span class="know-card-icon">🎓</span>
+        <div class="know-card-title-block"><div class="know-card-title">教育資金の一括贈与非課税</div><div class="know-card-cat">贈与税</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>内容</th><th>金額・条件</th></tr>
+          <tr><td>非課税限度額（学校等）</td><td class="val">1,500万円</td></tr>
+          <tr><td>非課税限度額（学校等以外）</td><td class="val">500万円</td></tr>
+          <tr><td>受贈者の年齢</td><td class="val">30歳未満</td></tr>
+          <tr><td>適用期限</td><td class="val">2026年3月末まで</td></tr>
+        </table>
+        <div class="know-note">金融機関に口座を開設し、教育費用の領収書で引き出す仕組み。残額は30歳時点で贈与税の対象になる。</div>
+        <div class="know-point">祖父母から孫への資産移転に有効。暦年贈与より一気に動かせる。相続資産圧縮の手段として提案できる。</div>
+      </div>
+    </div>
+
+    <!-- 贈与税：結婚・子育て資金 -->
+    <div class="know-card collapsed" data-cat="zoyo" data-search="結婚 子育て 贈与 非課税 1000万 300万">
+      <div class="know-card-header kc-zoyo" onclick="toggleKnow(this)">
+        <span class="know-card-icon">💍</span>
+        <div class="know-card-title-block"><div class="know-card-title">結婚・子育て資金の一括贈与非課税</div><div class="know-card-cat">贈与税</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>内容</th><th>金額・条件</th></tr>
+          <tr><td>非課税限度額</td><td class="val">1,000万円（結婚関係は300万円まで）</td></tr>
+          <tr><td>受贈者の年齢</td><td class="val">18歳以上50歳未満</td></tr>
+          <tr><td>適用期限</td><td class="val">2025年3月末まで（要確認）</td></tr>
+        </table>
+        <div class="know-note">結婚費用・妊娠・出産・育児費用が対象。残額は50歳時点で贈与税の対象。</div>
+        <div class="know-point">教育資金より対象年齢が広い。孫が成人済みでも使えるケースあり。適用期限の延長状況は毎年確認が必要。</div>
+      </div>
+    </div>
+
+    <!-- 贈与税：相続時精算課税 -->
+    <div class="know-card collapsed" data-cat="zoyo" data-search="相続時精算課税 2500万 特別控除 60歳 18歳">
+      <div class="know-card-header kc-zoyo" onclick="toggleKnow(this)">
+        <span class="know-card-icon">⚖️</span>
+        <div class="know-card-title-block"><div class="know-card-title">相続時精算課税制度</div><div class="know-card-cat">贈与税</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>内容</th><th>金額・条件</th></tr>
+          <tr><td>特別控除額（累計）</td><td class="val">2,500万円</td></tr>
+          <tr><td>2,500万円超の税率</td><td class="val">一律20%</td></tr>
+          <tr><td>贈与者の年齢</td><td class="val">60歳以上の親・祖父母</td></tr>
+          <tr><td>受贈者の年齢</td><td class="val">18歳以上の子・孫</td></tr>
+          <tr><td>2024年改正：年間非課税枠</td><td class="val">110万円（新設）</td></tr>
+        </table>
+        <div class="know-note">一度選択すると暦年課税に戻れない。相続発生時に贈与財産を相続財産に合算して精算する。2024年改正で年110万円の基礎控除が新設。</div>
+        <div class="know-point">値上がりが見込まれる自社株や不動産を早期に移転したい場合に有効。税理士と要相談。</div>
+      </div>
+    </div>
+
+    <!-- 高額療養費制度 -->
+    <div class="know-card collapsed" data-cat="iryo" data-search="高額療養費 自己負担 上限 月額 70歳 所得">
+      <div class="know-card-header kc-iryo" onclick="toggleKnow(this)">
+        <span class="know-card-icon">🏥</span>
+        <div class="know-card-title-block"><div class="know-card-title">高額療養費制度（自己負担上限額）</div><div class="know-card-cat">医療費制度</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>所得区分（69歳以下）</th><th>月額上限（概算）</th></tr>
+          <tr><td>年収〜370万円（住民税非課税）</td><td class="val blue">約35,400円</td></tr>
+          <tr><td>年収〜370万円（区分ウ）</td><td class="val blue">約57,600円</td></tr>
+          <tr><td>年収370〜770万円（区分イ）</td><td class="val blue">約80,100円 + α</td></tr>
+          <tr><td>年収770〜1,160万円（区分ア）</td><td class="val blue">約167,400円 + α</td></tr>
+          <tr><td>年収1,160万円超（区分アの上）</td><td class="val blue">約252,600円 + α</td></tr>
+        </table>
+        <div class="know-note">3ヶ月連続で上限に達すると「多数回該当」となり、4ヶ月目から上限がさらに下がる。差額ベッド代・先進医療・食費は対象外。</div>
+        <div class="know-point">「公的保険があるから民間保険は不要」という反論への答え。先進医療・収入減・差額ベッド代は高額療養費でカバーされない。この「すき間」が保険ニーズ。</div>
+      </div>
+    </div>
+
+    <!-- 先進医療 -->
+    <div class="know-card collapsed" data-cat="iryo" data-search="先進医療 自己負担 陽子線 重粒子 保険対象外">
+      <div class="know-card-header kc-iryo" onclick="toggleKnow(this)">
+        <span class="know-card-icon">🔬</span>
+        <div class="know-card-title-block"><div class="know-card-title">先進医療と自己負担</div><div class="know-card-cat">医療費制度</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>治療法</th><th>自己負担額目安</th></tr>
+          <tr><td>陽子線治療（前立腺がん等）</td><td class="val orange">約270〜300万円</td></tr>
+          <tr><td>重粒子線治療</td><td class="val orange">約300万円</td></tr>
+          <tr><td>CAR-T細胞療法（一部）</td><td class="val orange">数百万〜</td></tr>
+        </table>
+        <div class="know-note">先進医療は技術料が全額自己負担。高額療養費の対象外。治療効果が高いが費用が大きい。</div>
+        <div class="know-point">「がんになっても高額療養費があるから大丈夫」という方への最強の反論材料。先進医療特約は保険料が安く、費用対効果が非常に高い。</div>
+      </div>
+    </div>
+
+    <!-- 傷病手当金 -->
+    <div class="know-card collapsed" data-cat="iryo" data-search="傷病手当金 休業 病気 ケガ 1年6ヶ月 会社員">
+      <div class="know-card-header kc-iryo" onclick="toggleKnow(this)">
+        <span class="know-card-icon">🤒</span>
+        <div class="know-card-title-block"><div class="know-card-title">傷病手当金（会社員）</div><div class="know-card-cat">医療費制度</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>内容</th><th>金額・条件</th></tr>
+          <tr><td>支給額（日額）</td><td class="val blue">標準報酬日額の2/3</td></tr>
+          <tr><td>支給期間</td><td class="val blue">最長1年6ヶ月</td></tr>
+          <tr><td>待機期間</td><td class="val blue">連続3日間の休業後から</td></tr>
+          <tr><td>対象</td><td class="val blue">健康保険加入の会社員・公務員</td></tr>
+          <tr><td>自営業・フリーランス</td><td class="val orange">対象外（国民健康保険）</td></tr>
+        </table>
+        <div class="know-note">年収600万円の場合、傷病手当金は月約33万円。ただし1年6ヶ月で終わる。その後は無収入になる。</div>
+        <div class="know-point">1年6ヶ月を超えた就業不能リスクが「就業不能保険」の提案根拠。自営業者はそもそも対象外なので初日から保険でカバーが必要。</div>
+      </div>
+    </div>
+
+    <!-- 介護保険 -->
+    <div class="know-card collapsed" data-cat="iryo" data-search="介護保険 要介護 1割 2割 限度額 施設">
+      <div class="know-card-header kc-iryo" onclick="toggleKnow(this)">
+        <span class="know-card-icon">🧓</span>
+        <div class="know-card-title-block"><div class="know-card-title">公的介護保険の給付と限度額</div><div class="know-card-cat">医療費制度</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>要介護度</th><th>月額支給限度基準額（目安）</th><th>自己負担（1割）</th></tr>
+          <tr><td>要支援1</td><td>50,320円</td><td class="val blue">約5,000円</td></tr>
+          <tr><td>要介護1</td><td>167,650円</td><td class="val blue">約16,700円</td></tr>
+          <tr><td>要介護3</td><td>270,480円</td><td class="val orange">約27,000円</td></tr>
+          <tr><td>要介護5</td><td>362,170円</td><td class="val orange">約36,200円</td></tr>
+        </table>
+        <div class="know-note">自己負担割合は所得に応じて1〜3割。限度額を超えたサービスは全額自己負担。施設入居の場合、居住費・食費は別途全額負担（月5〜15万円程度）。</div>
+        <div class="know-point">在宅介護でも月10万円以上、施設入居では月20〜35万円超になるケースが多い。公的介護保険だけでは足りない部分が民間介護保険の訴求ポイント。</div>
+      </div>
+    </div>
+
+    <!-- 遺族年金：会社員 -->
+    <div class="know-card collapsed" data-cat="nenkin" data-search="遺族年金 遺族厚生年金 遺族基礎年金 子 配偶者 金額">
+      <div class="know-card-header kc-nenkin" onclick="toggleKnow(this)">
+        <span class="know-card-icon">👨‍👩‍👧</span>
+        <div class="know-card-title-block"><div class="know-card-title">遺族年金の種類と受給額</div><div class="know-card-cat">年金・遺族</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>種類</th><th>受給額の目安</th><th>条件</th></tr>
+          <tr><td>遺族基礎年金（国民年金）</td><td class="val green">年813,700円＋子の加算</td><td>子（18歳未満）がいること</td></tr>
+          <tr><td>遺族厚生年金（厚生年金）</td><td class="val green">老齢厚生年金の3/4（概算）</td><td>会社員・公務員の配偶者</td></tr>
+          <tr><td>子の加算（1・2人目）</td><td class="val green">234,800円/人</td><td>遺族基礎年金に加算</td></tr>
+        </table>
+        <div class="know-note">年収500万円の会社員が死亡した場合、妻（子2人）に支給される遺族年金は月約18〜22万円程度（目安）。子が18歳を超えると遺族基礎年金は停止。</div>
+        <div class="know-point">遺族年金だけでは生活費が不足するケースが多い。「毎月いくら足りないか」を計算して、不足分を死亡保険でカバーする提案につなげる。</div>
+      </div>
+    </div>
+
+    <!-- 遺族年金：自営業 -->
+    <div class="know-card collapsed" data-cat="nenkin" data-search="自営業 遺族年金 国民年金 薄い 不利 フリーランス">
+      <div class="know-card-header kc-nenkin" onclick="toggleKnow(this)">
+        <span class="know-card-icon">⚠️</span>
+        <div class="know-card-title-block"><div class="know-card-title">自営業者の遺族年金（手薄さを知る）</div><div class="know-card-cat">年金・遺族</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>項目</th><th>会社員</th><th>自営業</th></tr>
+          <tr><td>遺族年金</td><td class="val green">基礎年金＋厚生年金</td><td class="val orange">基礎年金のみ</td></tr>
+          <tr><td>傷病手当金</td><td class="val green">あり（最長1年半）</td><td class="val orange">なし</td></tr>
+          <tr><td>老齢年金</td><td class="val green">基礎＋厚生</td><td class="val orange">基礎のみ</td></tr>
+        </table>
+        <div class="know-note">自営業者（国民年金のみ）は子がいない場合、配偶者への遺族年金がゼロになることもある。</div>
+        <div class="know-point">「自営業だからこそ保険が大事」という最強の根拠。会社員より保障が薄い分、民間保険で厚くカバーする必要がある。自営業顧客への提案入口として使える。</div>
+      </div>
+    </div>
+
+    <!-- 老齢年金の受給額 -->
+    <div class="know-card collapsed" data-cat="nenkin" data-search="老齢年金 受給額 平均 厚生年金 国民年金 老後">
+      <div class="know-card-header kc-nenkin" onclick="toggleKnow(this)">
+        <span class="know-card-icon">🌅</span>
+        <div class="know-card-title-block"><div class="know-card-title">老齢年金の平均受給額</div><div class="know-card-cat">年金・遺族</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>種類</th><th>月額平均（目安）</th></tr>
+          <tr><td>老齢基礎年金（国民年金・満額）</td><td class="val green">約68,000円</td></tr>
+          <tr><td>老齢厚生年金（会社員男性平均）</td><td class="val green">約165,000円</td></tr>
+          <tr><td>会社員夫婦の世帯合計</td><td class="val green">約220,000円</td></tr>
+          <tr><td>自営業夫婦（国民年金のみ）</td><td class="val orange">約136,000円</td></tr>
+        </table>
+        <div class="know-note">「老後2,000万円問題」は毎月5万円不足×30年の計算に基づく。実際の不足額は生活水準により異なる。</div>
+        <div class="know-point">老後の必要月額（25〜30万円）と年金受給額の差額を出して見せると、保険・資産運用の必要性が一気に「自分ごと」になる。</div>
+      </div>
+    </div>
+
+    <!-- iDeCo -->
+    <div class="know-card collapsed" data-cat="nenkin hoken" data-search="iDeCo 個人型確定拠出年金 節税 所得控除 掛金 上限">
+      <div class="know-card-header kc-nenkin" onclick="toggleKnow(this)">
+        <span class="know-card-icon">💰</span>
+        <div class="know-card-title-block"><div class="know-card-title">iDeCo（個人型確定拠出年金）</div><div class="know-card-cat">年金・遺族 ／ 保険・非課税</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>対象者</th><th>月額上限</th><th>年額上限</th></tr>
+          <tr><td>会社員（企業年金なし）</td><td class="val green">23,000円</td><td class="val green">276,000円</td></tr>
+          <tr><td>会社員（企業年金あり）</td><td class="val green">12,000〜20,000円</td><td>—</td></tr>
+          <tr><td>自営業・フリーランス</td><td class="val green">68,000円</td><td class="val green">816,000円</td></tr>
+          <tr><td>専業主婦（第3号被保険者）</td><td class="val blue">23,000円</td><td class="val blue">276,000円</td></tr>
+        </table>
+        <div class="know-note">掛金全額が所得控除。運用益非課税。受取時も退職所得控除・公的年金等控除が使える。原則60歳まで引き出せない。</div>
+        <div class="know-point">年収500万円の会社員が満額掛けると年間約55,000円の節税効果（所得税20%+住民税10%の場合）。「老後資金を積みながら今の税金も減らせる」が刺さる訴求。</div>
+      </div>
+    </div>
+
+    <!-- 役員退職金の計算 -->
+    <div class="know-card collapsed" data-cat="kigyou" data-search="役員退職金 功績倍率 最終報酬 勤続年数 計算式 法人">
+      <div class="know-card-header kc-kigyou" onclick="toggleKnow(this)">
+        <span class="know-card-icon">👑</span>
+        <div class="know-card-title-block"><div class="know-card-title">役員退職金の適正額計算式</div><div class="know-card-cat">法人・税務</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>計算式</th><th>内容</th></tr>
+          <tr><td>適正退職金 = 最終月額報酬 × 勤続年数 × 功績倍率</td><td class="val">—</td></tr>
+          <tr><td>功績倍率（代表取締役）</td><td class="val">最大3.0倍</td></tr>
+          <tr><td>功績倍率（取締役）</td><td class="val">最大2.0〜2.5倍</td></tr>
+          <tr><td>功績倍率（監査役）</td><td class="val">最大2.0倍</td></tr>
+        </table>
+        <div class="know-note">月額100万円・勤続20年・倍率3倍 → 退職金6,000万円が税務上の上限目安。退職金として受け取ると退職所得控除が使えるため、給与で受け取るより手取りが有利。</div>
+        <div class="know-point">この計算式を知っていることで「社長はいくら受け取れるか」を即座に試算して見せられる。これだけで提案の説得力が格段に上がる。</div>
+      </div>
+    </div>
+
+    <!-- 法人税の基本 -->
+    <div class="know-card collapsed" data-cat="kigyou" data-search="法人税 実効税率 中小企業 軽減 800万 節税">
+      <div class="know-card-header kc-kigyou" onclick="toggleKnow(this)">
+        <span class="know-card-icon">🏢</span>
+        <div class="know-card-title-block"><div class="know-card-title">法人税の基本（実効税率）</div><div class="know-card-cat">法人・税務</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>課税所得</th><th>法人税率</th><th>実効税率目安</th></tr>
+          <tr><td>中小企業（800万円以下）</td><td class="val orange">15%</td><td class="val orange">約21〜23%</td></tr>
+          <tr><td>中小企業（800万円超）</td><td class="val orange">23.2%</td><td class="val orange">約33〜35%</td></tr>
+          <tr><td>大企業</td><td class="val orange">23.2%</td><td class="val orange">約30〜34%</td></tr>
+        </table>
+        <div class="know-note">実効税率には法人税＋地方法人税＋法人住民税＋法人事業税が含まれる。利益800万円以下は軽減税率が適用される（中小企業のみ）。</div>
+        <div class="know-point">「利益が出ている会社は実効税率30〜35%分が税金で出ていく」という事実が節税提案の土台。退職金積立で利益を圧縮するメリットを具体的に示せる。</div>
+      </div>
+    </div>
+
+    <!-- 法人保険と損金算入 -->
+    <div class="know-card collapsed" data-cat="kigyou hoken" data-search="法人保険 損金 全額損金 半額 逓増定期 節税">
+      <div class="know-card-header kc-kigyou" onclick="toggleKnow(this)">
+        <span class="know-card-icon">📋</span>
+        <div class="know-card-title-block"><div class="know-card-title">法人保険と損金算入ルール（2019年改正後）</div><div class="know-card-cat">法人・税務 ／ 保険・非課税</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>最高解約返戻率</th><th>損金算入割合</th></tr>
+          <tr><td>50%以下</td><td class="val green">保険料の全額</td></tr>
+          <tr><td>50%超〜70%以下</td><td class="val green">保険料の40%</td></tr>
+          <tr><td>70%超〜85%以下</td><td class="val orange">保険料の60%</td></tr>
+          <tr><td>85%超</td><td class="val orange">保険料の10〜40%（逓減）</td></tr>
+        </table>
+        <div class="know-note">2019年の通達改正で「全額損金」の高返戻率商品は規制された。損金算入できない部分は資産計上され、解約時に取り崩す。</div>
+        <div class="know-point">「節税目的だけの保険」は過去の話。今は「退職金積立＋リスクカバー」として提案するのが正しいアプローチ。目的の説明が顧客の信頼につながる。</div>
+      </div>
+    </div>
+
+    <!-- 死亡退職金の非課税枠 -->
+    <div class="know-card collapsed" data-cat="kigyou hoken" data-search="死亡退職金 非課税 500万 相続税 みなし相続">
+      <div class="know-card-header kc-kigyou" onclick="toggleKnow(this)">
+        <span class="know-card-icon">💼</span>
+        <div class="know-card-title-block"><div class="know-card-title">死亡退職金の相続税非課税枠</div><div class="know-card-cat">法人・税務 ／ 保険・非課税</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>計算式</th><th>例（相続人3人）</th></tr>
+          <tr><td>非課税限度額 = 500万円 × 法定相続人の数</td><td class="val">1,500万円 非課税</td></tr>
+        </table>
+        <div class="know-note">会社が支払う死亡退職金は「みなし相続財産」として相続税の対象になるが、この非課税枠が使える。生命保険の非課税枠と合わせると最大3,000万円（相続人3人の場合）が非課税になる。</div>
+        <div class="know-point">生命保険の非課税枠（500万円×法定相続人数）と死亡退職金の非課税枠は別枠。両方合わせると節税効果が倍になる。これを知っているだけで提案の幅が広がる。</div>
+      </div>
+    </div>
+
+    <!-- 自社株評価の方法 -->
+    <div class="know-card collapsed" data-cat="kigyou" data-search="自社株 評価 類似業種比準 純資産 株価 非上場">
+      <div class="know-card-header kc-kigyou" onclick="toggleKnow(this)">
+        <span class="know-card-icon">📈</span>
+        <div class="know-card-title-block"><div class="know-card-title">非上場株式（自社株）の評価方法</div><div class="know-card-cat">法人・税務</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>評価方法</th><th>対象会社</th><th>特徴</th></tr>
+          <tr><td>類似業種比準価額</td><td>大会社・中会社</td><td class="val blue">業績に連動。黒字だと高くなる</td></tr>
+          <tr><td>純資産価額</td><td>全規模</td><td class="val orange">資産・負債から計算。含み益に注意</td></tr>
+          <tr><td>配当還元価額</td><td>少数株主</td><td class="val green">低く評価されやすい</td></tr>
+        </table>
+        <div class="know-note">大会社は類似業種比準を主体、小会社は純資産価額を主体として評価する（折衷）。利益が大きいほど株価が高くなる傾向がある。</div>
+        <div class="know-point">「業績が良い会社ほど相続税が高くなる」という逆説的な事実が、事業承継対策の緊急性を伝える最強のトーク。退職金積立で利益を圧縮すると株価も下がる。</div>
+      </div>
+    </div>
+
+    <!-- 障害年金 -->
+    <div class="know-card collapsed" data-cat="nenkin" data-search="障害年金 障害基礎年金 障害厚生年金 等級 金額 受給">
+      <div class="know-card-header kc-nenkin" onclick="toggleKnow(this)">
+        <span class="know-card-icon">♿</span>
+        <div class="know-card-title-block"><div class="know-card-title">障害年金の種類と受給額</div><div class="know-card-cat">年金・遺族</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>種類・等級</th><th>年額目安（2024年度）</th></tr>
+          <tr><td>障害基礎年金1級</td><td class="val green">約102万円</td></tr>
+          <tr><td>障害基礎年金2級</td><td class="val green">約81万円</td></tr>
+          <tr><td>障害厚生年金1級（会社員）</td><td class="val green">基礎年金1級 ＋ 報酬比例部分×1.25</td></tr>
+          <tr><td>障害厚生年金3級（最低保証）</td><td class="val blue">約59万円</td></tr>
+          <tr><td>自営業（国民年金のみ）3級以下</td><td class="val orange">支給なし</td></tr>
+        </table>
+        <div class="know-note">障害年金は初診日に加入していた年金の種類によって異なる。初診日が重要。国民年金のみの自営業者は3級以下で障害年金が出ない。</div>
+        <div class="know-point">重度障害になっても公的障害年金だけでは生活費を賄えないケースが多い。就業不能保険・障害保険の訴求根拠として使える。</div>
+      </div>
+      </div>
+    </div>
+
+    <!-- 生命保険料控除 -->
+    <div class="know-card collapsed" data-cat="hoken" data-search="生命保険料控除 所得控除 年末調整 一般 介護医療 個人年金 上限">
+      <div class="know-card-header kc-hoken" onclick="toggleKnow(this)">
+        <span class="know-card-icon">📝</span>
+        <div class="know-card-title-block"><div class="know-card-title">生命保険料控除（年末調整・確定申告）</div><div class="know-card-cat">保険・非課税</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>控除区分</th><th>所得控除上限（所得税）</th><th>住民税控除上限</th></tr>
+          <tr><td>一般生命保険料控除</td><td class="val">40,000円</td><td class="val">28,000円</td></tr>
+          <tr><td>介護医療保険料控除</td><td class="val">40,000円</td><td class="val">28,000円</td></tr>
+          <tr><td>個人年金保険料控除</td><td class="val">40,000円</td><td class="val">28,000円</td></tr>
+          <tr><td>3区分合計の最大控除額</td><td class="val green">120,000円</td><td class="val green">70,000円</td></tr>
+        </table>
+        <div class="know-note">2012年以降契約の新制度。旧制度（2011年以前）は一般・個人年金のみ各50,000円まで。新旧混在の場合は有利な方を選択。</div>
+        <div class="know-point">年収500万円の方が3区分フル活用すると年間約2〜3万円の節税効果。「保険は節税にもなる」という付加価値として伝えられる。</div>
+      </div>
+    </div>
+
+    <!-- NISA -->
+    <div class="know-card collapsed" data-cat="hoken nenkin" data-search="NISA 新NISA 非課税 積立 成長投資 1800万 老後 資産形成">
+      <div class="know-card-header kc-hoken" onclick="toggleKnow(this)">
+        <span class="know-card-icon">📈</span>
+        <div class="know-card-title-block"><div class="know-card-title">新NISA（2024年〜）の基本</div><div class="know-card-cat">保険・非課税 ／ 年金・遺族</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>区分</th><th>年間上限</th><th>生涯上限</th></tr>
+          <tr><td>つみたて投資枠</td><td class="val green">120万円</td><td rowspan="2" class="val green">1,800万円</td></tr>
+          <tr><td>成長投資枠</td><td class="val green">240万円</td></tr>
+          <tr><td>合計年間上限</td><td class="val green">360万円</td><td>—</td></tr>
+        </table>
+        <div class="know-note">運用益・配当金が非課税（通常20.315%課税）。非課税期間は無期限。売却後は翌年に枠が復活（生涯枠内）。</div>
+        <div class="know-point">「NISAがあるから保険は不要」という反論への対応：NISAは運用益の非課税制度であり、死亡・就業不能・医療リスクのカバーはできない。NISAと保険は役割が異なる。</div>
+      </div>
+    </div>
+
+    <!-- 団体信用生命保険（団信） -->
+    <div class="know-card collapsed" data-cat="hoken iryo" data-search="団信 団体信用生命保険 住宅ローン 死亡 ガン 就業不能 特約">
+      <div class="know-card-header kc-hoken" onclick="toggleKnow(this)">
+        <span class="know-card-icon">🏠</span>
+        <div class="know-card-title-block"><div class="know-card-title">団体信用生命保険（団信）の範囲と限界</div><div class="know-card-cat">保険・非課税 ／ 医療費制度</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>保障内容</th><th>カバー範囲</th></tr>
+          <tr><td>通常の団信</td><td class="val green">死亡・高度障害時にローン残高を完済</td></tr>
+          <tr><td>ガン団信（特約）</td><td class="val blue">ガン診断一時金 or ローン完済</td></tr>
+          <tr><td>3大疾病特約</td><td class="val blue">ガン・急性心筋梗塞・脳卒中</td></tr>
+          <tr><td>カバーされないもの</td><td class="val orange">ローン完済後の生活費・教育費・収入減</td></tr>
+        </table>
+        <div class="know-note">団信はローン残高の返済に特化。完済後の生活費・収入保障は別途手当てが必要。住宅購入後に既存保険を見直さない方が多い。</div>
+        <div class="know-point">「住宅を買ったから保険を見直したい」という相談は大きなチャンス。団信でカバーされない部分の確認と、ライフステージ変化に合わせた保障の再設計を提案できる。</div>
+      </div>
+    </div>
+
+    <!-- 遺留分 -->
+    <div class="know-card collapsed" data-cat="souzoku" data-search="遺留分 相続 遺言書 請求 割合 兄弟">
+      <div class="know-card-header kc-souzoku" onclick="toggleKnow(this)">
+        <span class="know-card-icon">⚖️</span>
+        <div class="know-card-title-block"><div class="know-card-title">遺留分（遺言書があっても最低限もらえる割合）</div><div class="know-card-cat">相続税</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>相続人の構成</th><th>遺留分（相続財産全体に対して）</th></tr>
+          <tr><td>配偶者のみ</td><td class="val">1/2</td></tr>
+          <tr><td>子のみ</td><td class="val">1/2（子が複数の場合は均等に分割）</td></tr>
+          <tr><td>配偶者＋子</td><td class="val">配偶者1/4・子全体で1/4</td></tr>
+          <tr><td>配偶者＋直系尊属（親）</td><td class="val">配偶者1/3・親1/6</td></tr>
+          <tr><td>兄弟姉妹</td><td class="val orange">遺留分なし</td></tr>
+        </table>
+        <div class="know-note">遺言書で「全財産を長男に」と書いても、他の相続人は遺留分を主張できる（遺留分侵害額請求）。兄弟姉妹には遺留分がないが、法定相続分はある。</div>
+        <div class="know-point">生命保険の死亡保険金は受取人の固有財産として遺産分割の対象外（原則）。遺留分の問題を回避しながら特定の人に財産を渡す手段として保険が使える。</div>
+      </div>
+    </div>
+
+    <!-- 法定相続分 -->
+    <div class="know-card collapsed" data-cat="souzoku" data-search="法定相続分 配偶者 子 親 兄弟 割合 相続">
+      <div class="know-card-header kc-souzoku" onclick="toggleKnow(this)">
+        <span class="know-card-icon">👨‍👩‍👧‍👦</span>
+        <div class="know-card-title-block"><div class="know-card-title">法定相続分の早見表</div><div class="know-card-cat">相続税</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>相続人の組み合わせ</th><th>配偶者</th><th>その他</th></tr>
+          <tr><td>配偶者＋子</td><td class="val">1/2</td><td class="val">1/2（子で均等）</td></tr>
+          <tr><td>配偶者＋直系尊属（親・祖父母）</td><td class="val">2/3</td><td class="val">1/3（親で均等）</td></tr>
+          <tr><td>配偶者＋兄弟姉妹</td><td class="val">3/4</td><td class="val">1/4（兄弟で均等）</td></tr>
+          <tr><td>子のみ（配偶者なし）</td><td>—</td><td class="val">全額（均等）</td></tr>
+        </table>
+        <div class="know-note">相続人が複数いる場合、遺産分割協議で全員合意しないと分割できない。遺言書があっても遺留分の範囲内で変更可能。</div>
+        <div class="know-point">事業承継で自社株を特定の後継者に渡したい場合、他の相続人への遺留分対策として現金（生命保険）を用意しておく「代償分割」が有効。</div>
+      </div>
+    </div>
+
+    <!-- 成年後見制度 -->
+    <div class="know-card collapsed" data-cat="souzoku iryo" data-search="成年後見 認知症 財産管理 後見人 任意後見">
+      <div class="know-card-header kc-iryo" onclick="toggleKnow(this)">
+        <span class="know-card-icon">🧠</span>
+        <div class="know-card-title-block"><div class="know-card-title">成年後見制度と財産凍結リスク</div><div class="know-card-cat">医療費制度 ／ 相続税</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>種類</th><th>概要</th></tr>
+          <tr><td>法定後見（認知症発症後）</td><td>家庭裁判所が後見人を選任。本人の財産管理を代行</td></tr>
+          <tr><td>任意後見（認知症前に準備）</td><td>本人が信頼できる人を後見人候補として事前に契約</td></tr>
+          <tr><td>財産凍結</td><td class="val orange">認知症発症で預貯金が原則引き出せなくなる</td></tr>
+        </table>
+        <div class="know-note">親が認知症になると、子供でも親の預貯金を動かせなくなる（金融機関が取引停止）。介護費用の支払いにも困るケースがある。</div>
+        <div class="know-point">「認知症になる前に財産を動かせる仕組みを作ること」が重要。生命保険は受取人を指定していれば後見手続きなしで支払われる。老後対策として保険の役割を訴求できる。</div>
+      </div>
+    </div>
+
+    <!-- 死亡一時金・寡婦年金 -->
+    <div class="know-card collapsed" data-cat="nenkin" data-search="死亡一時金 寡婦年金 国民年金 自営業 夫 死亡">
+      <div class="know-card-header kc-nenkin" onclick="toggleKnow(this)">
+        <span class="know-card-icon">💔</span>
+        <div class="know-card-title-block"><div class="know-card-title">死亡一時金・寡婦年金（自営業の落とし穴）</div><div class="know-card-cat">年金・遺族</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>給付種類</th><th>対象・金額</th></tr>
+          <tr><td>死亡一時金（国民年金）</td><td class="val blue">12〜32万円（掛金納付月数による）</td></tr>
+          <tr><td>寡婦年金</td><td class="val blue">老齢基礎年金の3/4 × 5〜10年間</td></tr>
+          <tr><td>寡婦年金の対象</td><td>子なし配偶者（40〜60歳）に限定</td></tr>
+          <tr><td>子ありの場合</td><td class="val orange">遺族基礎年金を受給（寡婦年金は不支給）</td></tr>
+        </table>
+        <div class="know-note">自営業者が子なしで死亡した場合、配偶者への公的な遺族給付は寡婦年金（最大10年）または死亡一時金のみ。会社員の遺族厚生年金（原則終身）と比較して圧倒的に手薄。</div>
+        <div class="know-point">「子のいない自営業の夫が死亡した場合の妻への保障は10年しか続かない」という事実は、定期保険や終身保険の強い訴求ポイントになる。</div>
+      </div>
+    </div>
+
+    <!-- 中小企業退職金共済（中退共） -->
+    <div class="know-card collapsed" data-cat="kigyou" data-search="中退共 中小企業退職金共済 掛金 損金 従業員 退職金">
+      <div class="know-card-header kc-kigyou" onclick="toggleKnow(this)">
+        <span class="know-card-icon">📦</span>
+        <div class="know-card-title-block"><div class="know-card-title">中小企業退職金共済（中退共）の基本と限界</div><div class="know-card-cat">法人・税務</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>項目</th><th>内容</th></tr>
+          <tr><td>掛金範囲（月額）</td><td class="val green">5,000〜30,000円</td></tr>
+          <tr><td>税務メリット</td><td class="val green">掛金全額が損金算入</td></tr>
+          <tr><td>加入対象</td><td>中小企業の従業員のみ（役員は対象外）</td></tr>
+          <tr><td>退職金の支払い先</td><td class="val orange">中退共から直接従業員へ（会社経由不可）</td></tr>
+          <tr><td>デメリット</td><td class="val orange">役員・幹部との差別化不可。掛金変更に制限</td></tr>
+        </table>
+        <div class="know-note">役員は加入できないため、役員退職金は別途準備が必要。掛金を増額するには段階的な制約がある。従業員退職金には有効だが、経営者自身の対策にはならない。</div>
+        <div class="know-point">「中退共だけでは役員退職金の準備ができていない」という論点が、法人保険提案の入口になる。中退共＋法人保険のセット提案が鉄板。</div>
+      </div>
+    </div>
+
+    <!-- 企業型確定拠出年金（企業型DC） -->
+    <div class="know-card collapsed" data-cat="kigyou nenkin" data-search="企業型DC 確定拠出年金 掛金 税制 福利厚生 401k">
+      <div class="know-card-header kc-kigyou" onclick="toggleKnow(this)">
+        <span class="know-card-icon">🏦</span>
+        <div class="know-card-title-block"><div class="know-card-title">企業型確定拠出年金（企業型DC）</div><div class="know-card-cat">法人・税務 ／ 年金・遺族</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>項目</th><th>内容</th></tr>
+          <tr><td>会社の掛金上限（月額）</td><td class="val green">55,000円（他の企業年金なし）</td></tr>
+          <tr><td>税務メリット（会社側）</td><td class="val green">掛金が全額損金算入、社会保険料の対象外</td></tr>
+          <tr><td>税務メリット（従業員側）</td><td class="val green">掛金が非課税、運用益非課税</td></tr>
+          <tr><td>受取方法</td><td>一時金（退職所得控除）または年金（公的年金等控除）</td></tr>
+        </table>
+        <div class="know-note">会社が掛金を出すため従業員の持ち出しなし。運用は従業員自身が行う。採用・定着・節税効果が高く、中小企業への導入提案に使える。</div>
+        <div class="know-point">「福利厚生を充実させながら法人の税負担を減らす」という経営者の二つのニーズを同時に解決できる。団体保険と組み合わせたトータル提案が効果的。</div>
+      </div>
+    </div>
+
+    <!-- がん保険・三大疾病保険 -->
+    <div class="know-card collapsed" data-cat="iryo hoken" data-search="がん保険 三大疾病 一時金 診断給付金 治療費 就業不能">
+      <div class="know-card-header kc-iryo" onclick="toggleKnow(this)">
+        <span class="know-card-icon">🎗</span>
+        <div class="know-card-title-block"><div class="know-card-title">がん・三大疾病保険の給付と実態</div><div class="know-card-cat">医療費制度 ／ 保険・非課税</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>費用項目</th><th>目安額</th><th>高額療養費対象</th></tr>
+          <tr><td>入院・手術費</td><td>月5〜15万円</td><td class="val green">対象（上限あり）</td></tr>
+          <tr><td>抗がん剤治療（外来）</td><td>月数万〜数十万円</td><td class="val green">対象</td></tr>
+          <tr><td>先進医療（陽子線等）</td><td class="val orange">200〜300万円</td><td class="val orange">対象外</td></tr>
+          <tr><td>差額ベッド代</td><td class="val orange">月10〜30万円</td><td class="val orange">対象外</td></tr>
+          <tr><td>収入の減少（休職期間）</td><td class="val orange">数十万〜数百万円</td><td class="val orange">対象外</td></tr>
+        </table>
+        <div class="know-note">日本人の2人に1人ががんに罹患。治療の長期化・外来化が進み、「入院日数」ではなく「治療期間」に対応した保険設計が重要。</div>
+        <div class="know-point">診断一時金（100〜300万円）は治療費だけでなく、収入減・生活費補填にも使える。「お金の心配なく治療に専念できる」という訴求が刺さる。</div>
+      </div>
+    </div>
+
+    <!-- 相続放棄 -->
+    <div class="know-card collapsed" data-cat="souzoku" data-search="相続放棄 3ヶ月 負債 マイナス相続 手続き">
+      <div class="know-card-header kc-souzoku" onclick="toggleKnow(this)">
+        <span class="know-card-icon">✋</span>
+        <div class="know-card-title-block"><div class="know-card-title">相続放棄の基本（負債を引き継がないために）</div><div class="know-card-cat">相続税</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>項目</th><th>内容</th></tr>
+          <tr><td>申請期限</td><td class="val orange">相続を知った日から3ヶ月以内</td></tr>
+          <tr><td>申請先</td><td>家庭裁判所</td></tr>
+          <tr><td>放棄後の影響</td><td>プラスの財産も一切受け取れなくなる</td></tr>
+          <tr><td>生命保険の受取</td><td class="val green">相続放棄しても受取人として保険金は受け取れる</td></tr>
+        </table>
+        <div class="know-note">相続放棄は負債がプラス財産を上回る場合に有効。ただし3ヶ月を過ぎると原則として放棄できない。「限定承認」という手段もある（プラスの範囲でのみ負債を引き受ける）。</div>
+        <div class="know-point">「生命保険の死亡保険金は相続財産ではなく受取人の固有財産」という知識が重要。相続放棄しても保険金は受け取れるため、万が一時に家族を守る最後の砦になる。</div>
+      </div>
+    </div>
+
+    <!-- 退職所得控除 -->
+    <div class="know-card collapsed" data-cat="kigyou nenkin" data-search="退職所得控除 退職金 税金 勤続年数 計算 有利">
+      <div class="know-card-header kc-nenkin" onclick="toggleKnow(this)">
+        <span class="know-card-icon">🏆</span>
+        <div class="know-card-title-block"><div class="know-card-title">退職所得控除の計算式</div><div class="know-card-cat">法人・税務 ／ 年金・遺族</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>勤続年数</th><th>退職所得控除額</th></tr>
+          <tr><td>20年以下</td><td class="val green">40万円 × 勤続年数（最低80万円）</td></tr>
+          <tr><td>20年超</td><td class="val green">800万円 + 70万円 × （勤続年数 − 20年）</td></tr>
+        </table>
+        <div class="know-note">退職所得 = （退職金 − 退職所得控除）÷ 2。さらに2分の1課税になるため、給与所得に比べて税負担が非常に軽い。</div>
+        <div class="know-point">勤続30年・退職金5,000万円の場合、退職所得控除2,200万円を引いた後さらに1/2課税。実質的な税負担率は10〜15%程度になる。「給与で受け取るより圧倒的に有利」が刺さる。</div>
+      </div>
+    </div>
+
+    <!-- 相続税の申告・納付 -->
+    <div class="know-card collapsed" data-cat="souzoku" data-search="相続税 申告期限 10ヶ月 延納 物納 納付方法">
+      <div class="know-card-header kc-souzoku" onclick="toggleKnow(this)">
+        <span class="know-card-icon">📅</span>
+        <div class="know-card-title-block"><div class="know-card-title">相続税の申告期限と納付方法</div><div class="know-card-cat">相続税</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>項目</th><th>内容</th></tr>
+          <tr><td>申告・納付期限</td><td class="val">相続開始を知った日の翌日から <span style="color:#e87c7c">10ヶ月以内</span></td></tr>
+          <tr><td>原則</td><td class="val orange">一括現金納付</td></tr>
+          <tr><td>延納（分割払い）</td><td class="val">現金一括が困難な場合。利子税あり。最長20年</td></tr>
+          <tr><td>物納（モノで納める）</td><td class="val">延納も困難な場合のみ。不動産・有価証券等</td></tr>
+        </table>
+        <div class="know-note">延納・物納は条件が厳しく審査あり。財産の大半が不動産の場合、現金がなくて物納・売却を余儀なくされるケースが多い。</div>
+        <div class="know-point">「10ヶ月で現金を用意しなければならない」という事実が相続対策の緊急性を生む。現金準備手段として生命保険は最もシンプルな解決策。</div>
+      </div>
+    </div>
+
+    <!-- 法人契約の死亡保険金と法人税 -->
+    <div class="know-card collapsed" data-cat="kigyou hoken" data-search="法人 死亡保険金 法人税 雑収入 保険金 キーマン">
+      <div class="know-card-header kc-kigyou" onclick="toggleKnow(this)">
+        <span class="know-card-icon">🏛</span>
+        <div class="know-card-title-block"><div class="know-card-title">法人契約の死亡保険金と法人税の関係</div><div class="know-card-cat">法人・税務 ／ 保険・非課税</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>項目</th><th>内容</th></tr>
+          <tr><td>死亡保険金の受取</td><td class="val">法人が受取人 → 全額「雑収入」として益金算入</td></tr>
+          <tr><td>資産計上残高の処理</td><td class="val">資産計上額を損金算入（相殺）</td></tr>
+          <tr><td>実質手取り</td><td class="val orange">（保険金 − 資産計上残高）× 実効税率分が法人税として発生</td></tr>
+          <tr><td>対策</td><td class="val green">死亡退職金・弔慰金として支払うことで損金化できる</td></tr>
+        </table>
+        <div class="know-note">弔慰金の非課税範囲：業務上の死亡は月額報酬×36ヶ月、業務外は×6ヶ月。これを超える部分は退職金扱い。</div>
+        <div class="know-point">キーマン保険の提案時に必ず説明が必要。「保険金がそのまま手取りになるわけではない」ことと「退職金で相殺できる」ことをセットで伝える。</div>
+      </div>
+    </div>
+
+    <!-- 収入保障保険 -->
+    <div class="know-card collapsed" data-cat="hoken iryo" data-search="収入保障保険 逓減定期 月払い 死亡保険 残存期間">
+      <div class="know-card-header kc-hoken" onclick="toggleKnow(this)">
+        <span class="know-card-icon">💰</span>
+        <div class="know-card-title-block"><div class="know-card-title">収入保障保険の特徴と使い方</div><div class="know-card-cat">保険・非課税</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>項目</th><th>内容</th></tr>
+          <tr><td>仕組み</td><td class="val">死亡時に毎月一定額を残存期間中支払う（逓減型）</td></tr>
+          <tr><td>保険料の特徴</td><td class="val green">一般的な死亡保険より大幅に割安</td></tr>
+          <tr><td>受取総額</td><td class="val orange">加入直後が最大・期間が短いほど減少</td></tr>
+          <tr><td>一括受取</td><td class="val">可能だが割引（現価換算）される</td></tr>
+          <tr><td>適した対象</td><td class="val">子育て中・住宅ローン返済中の世帯主</td></tr>
+        </table>
+        <div class="know-note">例）月30万円・60歳満了で加入。30歳で死亡した場合は30年分（最大1億800万円相当）、55歳で死亡した場合は5年分（最大1,800万円）。</div>
+        <div class="know-point">「家族の生活費を毎月カバーする」という概念が顧客に伝わりやすい。一時金の大きな数字より「毎月〇万円が来る」の方が実感しやすい。</div>
+      </div>
+    </div>
+
+    <!-- 就業不能保険 -->
+    <div class="know-card collapsed" data-cat="iryo hoken" data-search="就業不能保険 働けない 収入 障害 精神疾患 給付">
+      <div class="know-card-header kc-iryo" onclick="toggleKnow(this)">
+        <span class="know-card-icon">🩺</span>
+        <div class="know-card-title-block"><div class="know-card-title">就業不能保険の保障範囲と給付条件</div><div class="know-card-cat">医療・就業不能</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>項目</th><th>内容</th></tr>
+          <tr><td>給付開始までの免責期間</td><td class="val">多くの商品で60〜180日（会社員の傷病手当金終了後をカバー）</td></tr>
+          <tr><td>給付対象</td><td class="val">身体障害・精神疾患含む就業不能状態（商品による）</td></tr>
+          <tr><td>給付月額の目安</td><td class="val orange">月収の50〜80%相当を設計</td></tr>
+          <tr><td>給付期間</td><td class="val">2年・5年・65歳まで等（商品による）</td></tr>
+          <tr><td>会社員 vs 自営業</td><td class="val red">自営業は公的保障ゼロのため最重要</td></tr>
+        </table>
+        <div class="know-note">精神疾患（うつ病等）をカバーする商品かどうかは要確認。カバーしない商品も多い。</div>
+        <div class="know-point">「死亡リスクより3〜4倍高い確率で発生する」という統計が刺さる。特に30〜50代の働き盛り層・自営業者への提案で最重要カテゴリ。</div>
+      </div>
+    </div>
+
+    <!-- 個人年金保険料控除 -->
+    <div class="know-card collapsed" data-cat="hoken nenkin" data-search="個人年金保険料控除 年末調整 4万 所得控除 節税">
+      <div class="know-card-header kc-hoken" onclick="toggleKnow(this)">
+        <span class="know-card-icon">📝</span>
+        <div class="know-card-title-block"><div class="know-card-title">個人年金保険料控除（年末調整活用）</div><div class="know-card-cat">保険・非課税</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>区分</th><th>所得税控除上限</th><th>住民税控除上限</th></tr>
+          <tr><td>一般生命保険料控除</td><td class="val">4万円</td><td class="val">2.8万円</td></tr>
+          <tr><td>介護医療保険料控除</td><td class="val">4万円</td><td class="val">2.8万円</td></tr>
+          <tr><td>個人年金保険料控除</td><td class="val green">4万円</td><td class="val green">2.8万円</td></tr>
+          <tr><td>合計最大控除（所得税）</td><td class="val orange" colspan="2">12万円</td></tr>
+        </table>
+        <div class="know-note">個人年金保険料控除の適用には「個人年金保険料税制適格特約」が付加されている必要あり。年金受取人は契約者または配偶者で、受取開始が60歳以降、10年以上の定期または終身が条件。</div>
+        <div class="know-point">3つの控除を全て使うと、年収600万円の会社員で年間約2〜3万円の節税効果。「老後資金を積みながら節税もできる」という切り口で個人年金保険の提案につながる。</div>
+      </div>
+    </div>
+
+    <!-- 特定疾病保険金 -->
+    <div class="know-card collapsed" data-cat="iryo hoken" data-search="特定疾病 三大疾病 がん 心筋梗塞 脳卒中 一時金 生前給付">
+      <div class="know-card-header kc-iryo" onclick="toggleKnow(this)">
+        <span class="know-card-icon">❤️</span>
+        <div class="know-card-title-block"><div class="know-card-title">特定疾病（三大疾病）保険金の仕組み</div><div class="know-card-cat">医療・就業不能 ／ 保険・非課税</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>対象疾病</th><th>給付条件の目安</th></tr>
+          <tr><td>がん（悪性新生物）</td><td class="val">診断確定で支払い（上皮内新生物は対象外の商品も）</td></tr>
+          <tr><td>急性心筋梗塞</td><td class="val orange">60日以上の労働制限または所定の手術が条件（商品による）</td></tr>
+          <tr><td>脳卒中</td><td class="val orange">60日以上の言語・運動障害等が条件（商品による）</td></tr>
+        </table>
+        <div class="know-table" style="margin-top:8px"><tr><th>特徴</th><th>内容</th></tr>
+          <tr><td>受取後の使途</td><td class="val green">自由（治療費・生活費・ローン返済等）</td></tr>
+          <tr><td>生前給付</td><td class="val">存命中に受け取れる。非課税（身体の傷害に起因）</td></tr>
+          <tr><td>保険契約の扱い</td><td class="val">給付後に契約消滅するタイプと継続するタイプがある</td></tr>
+        </table>
+        <div class="know-point">心筋梗塞・脳卒中は「診断確定」だけでは給付されない商品が多い点を必ず説明。がんは比較的支払条件がシンプル。「使途自由の一時金」という点が顧客に響く。</div>
+      </div>
+    </div>
+
+    <!-- 生命保険の非課税（死亡保険金の税務） -->
+    <div class="know-card collapsed" data-cat="souzoku hoken zoyo" data-search="死亡保険金 税金 相続税 贈与税 所得税 契約者 被保険者 受取人">
+      <div class="know-card-header kc-souzoku" onclick="toggleKnow(this)">
+        <span class="know-card-icon">⚖️</span>
+        <div class="know-card-title-block"><div class="know-card-title">死亡保険金にかかる税金の種類（契約形態別）</div><div class="know-card-cat">相続税 ／ 贈与税 ／ 保険・非課税</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>契約者</th><th>被保険者</th><th>受取人</th><th>課税の種類</th></tr>
+          <tr><td>夫</td><td>夫</td><td>妻・子</td><td class="val green">相続税（非課税枠あり）</td></tr>
+          <tr><td>夫</td><td>妻</td><td>夫</td><td class="val orange">所得税・住民税（一時所得）</td></tr>
+          <tr><td>夫</td><td>妻</td><td>子</td><td class="val" style="color:#e87c7c">贈与税（非課税枠なし・最も不利）</td></tr>
+        </table>
+        <div class="know-note">一時所得の計算：（受取保険金 − 払込保険料総額 − 50万円）× 1/2 が課税対象。</div>
+        <div class="know-point">契約形態を間違えると予想外の税負担が発生する。提案時に必ず「誰が契約者・被保険者・受取人か」を確認・設計する。夫婦間の場合は特に注意。</div>
+      </div>
+    </div>
+
+    <!-- 事業承継税制（特例措置） -->
+    <div class="know-card collapsed" data-cat="kigyou souzoku" data-search="事業承継税制 特例措置 自社株 100% 猶予 免除 後継者 2027年">
+      <div class="know-card-header kc-kigyou" onclick="toggleKnow(this)">
+        <span class="know-card-icon">🏭</span>
+        <div class="know-card-title-block"><div class="know-card-title">事業承継税制（特例措置）の概要</div><div class="know-card-cat">法人・税務 ／ 相続税</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>項目</th><th>内容</th></tr>
+          <tr><td>対象</td><td class="val">中小企業の非上場株式</td></tr>
+          <tr><td>特例の内容</td><td class="val green">贈与・相続時の株式に係る贈与税・相続税を<span style="color:#6fcf97">最大100%猶予</span></td></tr>
+          <tr><td>猶予から免除へ</td><td class="val">後継者が死亡・倒産等の場合に免除</td></tr>
+          <tr><td>特例の申請期限</td><td class="val orange">2027年12月末までに「特例承継計画」の提出が必要</td></tr>
+          <tr><td>雇用継続要件</td><td class="val">5年間平均で雇用8割維持（未達でも免除取消しなし＝特例の大きなメリット）</td></tr>
+        </table>
+        <div class="know-note">一般措置（従来）は80%猶予・雇用要件あり。特例措置は100%猶予・雇用要件が緩和されており、2027年末の期限が迫っている。</div>
+        <div class="know-point">2027年末の申請期限は今すぐ動く強力な理由になる。「特例措置を使うかどうか関係なく、計画書を出しておく損はない」という提案で税理士との協働アポを取りやすくなる。</div>
+      </div>
+    </div>
+
+    <!-- 役員報酬と社会保険 -->
+    <div class="know-card collapsed" data-cat="kigyou" data-search="役員報酬 社会保険 標準報酬月額 厚生年金 健康保険 最適化">
+      <div class="know-card-header kc-kigyou" onclick="toggleKnow(this)">
+        <span class="know-card-icon">💼</span>
+        <div class="know-card-title-block"><div class="know-card-title">役員報酬と社会保険料の最適化</div><div class="know-card-cat">法人・税務</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table"><tr><th>項目</th><th>内容</th></tr>
+          <tr><td>社会保険料率（目安）</td><td class="val orange">報酬の約30%（本人＋会社折半）</td></tr>
+          <tr><td>報酬を上げるデメリット</td><td class="val">社保料増加・所得税増加</td></tr>
+          <tr><td>退職金への転換メリット</td><td class="val green">退職所得控除×1/2課税で税負担が大幅軽減</td></tr>
+          <tr><td>最適解</td><td class="val">報酬は適度に抑え、差分を保険（退職金）に回す</td></tr>
+        </table>
+        <div class="know-note">報酬月額を下げると厚生年金受給額も下がる。老後の年金額と退職金・資産形成のバランスを考慮した設計が重要。</div>
+        <div class="know-point">「毎年の報酬を上げるより、退職時に保険でまとめて受け取る方が手取りが何百万円も変わる」という説明が経営者に響く。社会保険料削減効果も加えると説得力が増す。</div>
+      </div>
+    </div>
+
+
+    <!-- 出張旅費規定 -->
+    <div class="know-card collapsed" data-cat="kigyou" data-search="出張旅費規定 日当 節税 非課税 交通費 社内規定 法人 経費">
+      <div class="know-card-header kc-kigyou" onclick="toggleKnow(this)">
+        <span class="know-card-icon">✈️</span>
+        <div class="know-card-title-block"><div class="know-card-title">出張旅費規定による役員報酬の代替節税</div><div class="know-card-cat">法人・税務 ／ 節税テクニック</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table">
+          <tr><th>項目</th><th>内容</th></tr>
+          <tr><td>日当（国内出張・役員目安）</td><td class="val green">5,000〜10,000円/日が一般的</td></tr>
+          <tr><td>日当（海外出張・役員目安）</td><td class="val green">10,000〜20,000円/日が一般的</td></tr>
+          <tr><td>役員・社員への税務扱い</td><td class="val green">非課税（所得税・社会保険料なし）</td></tr>
+          <tr><td>法人側の扱い</td><td class="val green">全額損金算入可能</td></tr>
+          <tr><td>必要条件</td><td class="val orange">社内に「旅費規程」を整備すること</td></tr>
+          <tr><td>注意点</td><td class="val orange">不合理に高額な日当は税務調査で否認リスクあり</td></tr>
+        </table>
+        <div class="know-note">例：役員が月10日出張×日当10,000円＝月10万円が非課税受取。年間120万円の実質節税効果（役員報酬として受け取った場合との比較）。旅費規程の整備は税理士・司法書士に依頼するのが一般的。</div>
+        <div class="know-point">「旅費規程を整備するだけで手取りを増やしながら法人税も下げられる」という説明が経営者に刺さる。節税で生まれた財源を退職金積立の保険料に充てる流れに自然につながる。</div>
+      </div>
+    </div>
+
+    <!-- 役員社宅制度 -->
+    <div class="know-card collapsed" data-cat="kigyou" data-search="社宅 役員社宅 節税 家賃 法人 自宅 損金 非課税">
+      <div class="know-card-header kc-kigyou" onclick="toggleKnow(this)">
+        <span class="know-card-icon">🏠</span>
+        <div class="know-card-title-block"><div class="know-card-title">役員社宅制度による節税</div><div class="know-card-cat">法人・税務 ／ 節税テクニック</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table">
+          <tr><th>項目</th><th>内容</th></tr>
+          <tr><td>仕組み</td><td class="val green">法人が住居を借り上げ、役員に転貸する</td></tr>
+          <tr><td>役員の自己負担（小規模住宅）</td><td class="val green">固定資産税課税標準額合計×12%÷12（月額）程度</td></tr>
+          <tr><td>法人の家賃負担</td><td class="val green">全額損金算入可能</td></tr>
+          <tr><td>節税効果の目安</td><td class="val green">家賃月20万円なら年間200万円超の実質節税も可能</td></tr>
+          <tr><td>注意点</td><td class="val orange">法定家賃（賃料相当額）は必ず役員から徴収すること</td></tr>
+        </table>
+        <div class="know-note">「役員報酬として受け取って家賃を自分で払う」より「会社が社宅として借りて役員に貸す」方が、所得税・社会保険料の節約になる。法定家賃の計算は税理士に依頼。</div>
+        <div class="know-point">「自宅の家賃を実質会社に負担してもらいながら、役員の手取りを増やす」という説明が響く。節税で生まれた財源を保険料に充てる流れへ自然につながる。</div>
+      </div>
+    </div>
+
+    <!-- ハーフタックスプラン -->
+    <div class="know-card collapsed" data-cat="kigyou hoken" data-search="養老保険 ハーフタックス 節税 損金 1/2 法人 退職金 積立">
+      <div class="know-card-header kc-kigyou" onclick="toggleKnow(this)">
+        <span class="know-card-icon">📊</span>
+        <div class="know-card-title-block"><div class="know-card-title">養老保険のハーフタックスプラン</div><div class="know-card-cat">法人・税務 ／ 保険・非課税</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table">
+          <tr><th>契約形態</th><th>保険料の税務扱い</th></tr>
+          <tr><td>死亡受取：法人、満期受取：役員個人</td><td class="val green">保険料の1/2を損金算入可（ハーフタックス）</td></tr>
+          <tr><td>死亡・満期ともに法人受取</td><td class="val orange">全額資産計上（損金不可）</td></tr>
+          <tr><td>死亡・満期ともに役員受取</td><td class="val orange">全額給与課税</td></tr>
+        </table>
+        <div class="know-note">2019年の税制改正後も養老保険にはハーフタックスプランが適用できる。「保険料の50%を損金に落としながら、退職時に満期金を退職金財源にできる」双方メリットの設計。</div>
+        <div class="know-point">「節税しながら退職金を積み立てる最もシンプルな仕組み」として経営者に説明しやすい。特に「半分は経費になる」という事実が意思決定を後押しする。</div>
+      </div>
+    </div>
+
+    <!-- 家族役員への給与支払い -->
+    <div class="know-card collapsed" data-cat="kigyou" data-search="家族 役員 給与 配偶者 子供 節税 法人 専従者 所得分散">
+      <div class="know-card-header kc-kigyou" onclick="toggleKnow(this)">
+        <span class="know-card-icon">👨‍👩‍👧</span>
+        <div class="know-card-title-block"><div class="know-card-title">家族役員への給与支払いによる所得分散</div><div class="know-card-cat">法人・税務 ／ 節税テクニック</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table">
+          <tr><th>項目</th><th>内容</th></tr>
+          <tr><td>仕組み</td><td class="val green">配偶者・子を役員に就任させ、役員報酬を支払う</td></tr>
+          <tr><td>税務上の条件</td><td class="val orange">実際に業務に従事・報酬が不相当に高くないこと</td></tr>
+          <tr><td>配偶者への報酬目安</td><td class="val green">月10〜20万円（給与所得控除55万+基礎控除48万まで非課税）</td></tr>
+          <tr><td>社会保険の注意</td><td class="val orange">一定以上だと社会保険加入義務が発生</td></tr>
+          <tr><td>節税効果</td><td class="val green">所得分散により累進課税を緩和</td></tr>
+        </table>
+        <div class="know-note">配偶者の場合、年収103万円以下なら所得税ゼロ・配偶者控除も活用可能。法人の損金として落とせるため、法人税+個人所得税の合計を下げる効果がある。</div>
+        <div class="know-point">「社長1人に集中していた所得を家族全体で分散する」という発想が節税の基本。浮いた税金を保険料の財源に充てる提案への橋渡しになる。</div>
+      </div>
+    </div>
+
+    <!-- 小規模企業共済 -->
+    <div class="know-card collapsed" data-cat="kigyou" data-search="小規模企業共済 節税 退職金 個人事業主 自営業 掛金 所得控除 840万円">
+      <div class="know-card-header kc-kigyou" onclick="toggleKnow(this)">
+        <span class="know-card-icon">🏅</span>
+        <div class="know-card-title-block"><div class="know-card-title">小規模企業共済（経営者の退職金制度）</div><div class="know-card-cat">法人・税務 ／ 節税テクニック</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table">
+          <tr><th>項目</th><th>内容</th></tr>
+          <tr><td>対象</td><td class="val green">個人事業主・小規模法人の役員</td></tr>
+          <tr><td>掛金月額</td><td class="val green">1,000円〜70,000円</td></tr>
+          <tr><td>年間最大控除額</td><td class="val green">840,000円（全額所得控除）</td></tr>
+          <tr><td>受取時の扱い</td><td class="val green">退職所得控除・公的年金等控除が使える</td></tr>
+          <tr><td>貸付制度</td><td class="val green">掛金の範囲内で低利融資が利用可能</td></tr>
+          <tr><td>注意点</td><td class="val orange">12ヶ月未満の任意解約は元本割れ</td></tr>
+        </table>
+        <div class="know-note">年収800万円の個人事業主が満額掛けると、所得税+住民税の節税効果は年間約250,000円程度。iDeCoとの併用も可能で、組み合わせると節税効果がさらに大きくなる。</div>
+        <div class="know-point">「自営業・フリーランスにとって最強の退職金制度」として提案できる。保険との組み合わせで死亡保障も補完し、「退職金を積みながら万が一の備えもできる」という説明につながる。</div>
+      </div>
+    </div>
+
+    <!-- 法人の節税対策 総合チェックリスト -->
+    <div class="know-card collapsed" data-cat="kigyou" data-search="節税 法人 対策 チェックリスト 一覧 手法 中小企業 辻本郷 税理士">
+      <div class="know-card-header kc-kigyou" onclick="toggleKnow(this)">
+        <span class="know-card-icon">📌</span>
+        <div class="know-card-title-block"><div class="know-card-title">中小企業の節税対策 総合チェックリスト</div><div class="know-card-cat">法人・税務 ／ 節税テクニック</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table">
+          <tr><th>カテゴリ</th><th>手法</th><th>難易度</th></tr>
+          <tr><td>役員報酬・給与</td><td>役員報酬の最適化（利益との調整）</td><td class="val green">★☆☆</td></tr>
+          <tr><td>役員報酬・給与</td><td>家族役員への給与支払い（所得分散）</td><td class="val green">★☆☆</td></tr>
+          <tr><td>経費・損金</td><td>旅費規程（日当）の整備</td><td class="val green">★☆☆</td></tr>
+          <tr><td>経費・損金</td><td>役員社宅制度の導入</td><td class="val green">★☆☆</td></tr>
+          <tr><td>経費・損金</td><td>会議費・交際費の適切な区分</td><td class="val green">★☆☆</td></tr>
+          <tr><td>退職金・共済</td><td>役員退職金の積立（生命保険活用）</td><td class="val green">★☆☆</td></tr>
+          <tr><td>退職金・共済</td><td>小規模企業共済への加入</td><td class="val green">★☆☆</td></tr>
+          <tr><td>退職金・共済</td><td>中退共・DBOの活用</td><td class="val orange">★★☆</td></tr>
+          <tr><td>設備投資・特例</td><td>30万円未満の少額減価償却特例</td><td class="val green">★☆☆</td></tr>
+          <tr><td>設備投資・特例</td><td>中小企業経営強化税制（設備投資減税）</td><td class="val orange">★★☆</td></tr>
+          <tr><td>資本政策</td><td>資本金1億円以下の軽減税率（800万円まで15%）</td><td class="val green">★☆☆</td></tr>
+          <tr><td>資本政策</td><td>持株会・種類株式による事業承継対策</td><td class="val orange">★★★</td></tr>
+          <tr><td>保険活用</td><td>ハーフタックスプラン（養老保険1/2損金）</td><td class="val green">★☆☆</td></tr>
+          <tr><td>保険活用</td><td>定期保険による退職金積立（損金算入）</td><td class="val orange">★★☆</td></tr>
+        </table>
+        <div class="know-note">難易度★☆☆は税理士との相談で比較的容易に実施可能。★★★は弁護士・司法書士・税理士の連携が必要。節税は合法的な税負担の軽減であり、脱税・租税回避とは明確に異なる。</div>
+        <div class="know-point">「これだけの節税手法がある中で、保険は退職金積立・損金処理・死亡保障を同時にできる点で特に使い勝手が良い」という説明で保険の優位性を位置づけられる。税理士との連携提案の全体像としても使える。</div>
+      </div>
+    </div>
+
+    <!-- 自社株評価の引き下げ手法 -->
+    <div class="know-card collapsed" data-cat="kigyou" data-search="自社株 評価 引き下げ 株価 純資産 事業承継 節税 相続 保険">
+      <div class="know-card-header kc-kigyou" onclick="toggleKnow(this)">
+        <span class="know-card-icon">📉</span>
+        <div class="know-card-title-block"><div class="know-card-title">自社株の評価額を下げる具体的手法</div><div class="know-card-cat">法人・税務 ／ 事業承継</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table">
+          <tr><th>手法</th><th>仕組み</th><th>効果</th></tr>
+          <tr><td>役員退職金の支払い</td><td>退職金を支払い利益・純資産を減らす</td><td class="val green">株価の直接引き下げ</td></tr>
+          <tr><td>含み損資産の売却</td><td>評価損のある資産を売却して損失計上</td><td class="val green">純資産を減らし株価を下げる</td></tr>
+          <tr><td>生命保険の活用</td><td>保険料を支払い純資産を圧縮</td><td class="val green">継続的な株価抑制効果</td></tr>
+          <tr><td>持株会の設立</td><td>従業員持株会を設立し株式を分散</td><td class="val green">支配権の分散＋評価引き下げ</td></tr>
+          <tr><td>事業承継税制の活用</td><td>特例措置で相続・贈与時の課税を猶予</td><td class="val green">後継者の税負担を大幅軽減</td></tr>
+        </table>
+        <div class="know-note">株価が高い状態で相続・贈与すると後継者の税負担が莫大になる。計画的に株価を引き下げることで相続税の大幅節減が可能。税理士・弁護士との連携が不可欠。</div>
+        <div class="know-point">「株価を下げながら退職金を積み立てる」という一石二鳥の提案として、法人保険の最大の根拠になる。事業承継案件では必ず押さえておきたい知識。</div>
+      </div>
+    </div>
+
+    <!-- 生前贈与7年ルール（2024年改正） -->
+    <div class="know-card collapsed" data-cat="zoyo souzoku" data-search="生前贈与 7年 3年 加算 相続 2024 改正 持ち戻し 暦年課税">
+      <div class="know-card-header kc-zoyo" onclick="toggleKnow(this)">
+        <span class="know-card-icon">📅</span>
+        <div class="know-card-title-block"><div class="know-card-title">生前贈与の相続加算が3年→7年に（2024年改正）</div><div class="know-card-cat">贈与税 ／ 相続税</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table">
+          <tr><th>項目</th><th>改正前（〜2023年）</th><th>改正後（2024年〜）</th></tr>
+          <tr><td>相続前の加算期間</td><td class="val orange">3年以内の贈与を加算</td><td class="val orange">7年以内の贈与を加算</td></tr>
+          <tr><td>4〜7年前の贈与</td><td class="val green">加算不要</td><td class="val orange">加算（ただし100万円控除あり）</td></tr>
+          <tr><td>特例贈与（教育・住宅等）</td><td class="val green">加算対象外</td><td class="val green">引き続き対象外</td></tr>
+          <tr><td>完全移行時期</td><td>—</td><td class="val orange">2031年1月以降の相続から完全適用</td></tr>
+        </table>
+        <div class="know-note">「死ぬ前に急いで贈与する」戦略の効果が薄れた。特例贈与（教育資金・住宅等）の活用がより重要になる。また早期からの計画的な贈与開始が節税効果を高める。</div>
+        <div class="know-point">「贈与の戦略が変わった」という話から「より確実な相続対策として保険の非課税枠がある」という説明につなげやすい。2024年改正を知っているだけで顧客からの信頼が大幅に上がる。</div>
+      </div>
+    </div>
+
+    <!-- 不動産の財産評価 -->
+    <div class="know-card collapsed" data-cat="souzoku kigyou" data-search="路線価 時価 財産評価 不動産 相続税 評価額 固定資産税 タワマン">
+      <div class="know-card-header kc-souzoku" onclick="toggleKnow(this)">
+        <span class="know-card-icon">🏗️</span>
+        <div class="know-card-title-block"><div class="know-card-title">不動産の財産評価と相続税の基本</div><div class="know-card-cat">相続税 ／ 法人・税務</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table">
+          <tr><th>評価方法</th><th>適用</th><th>時価との関係</th></tr>
+          <tr><td>路線価方式</td><td class="val green">市街地の土地</td><td class="val orange">時価の約70〜80%水準</td></tr>
+          <tr><td>倍率方式</td><td class="val green">農村部・路線価のない土地</td><td class="val orange">固定資産税評価額×倍率</td></tr>
+          <tr><td>建物評価</td><td class="val green">固定資産税評価額をそのまま使用</td><td class="val orange">時価の約50〜70%水準</td></tr>
+          <tr><td>貸家建付地</td><td class="val green">借地権・借家権割合を差し引く</td><td class="val green">評価額をさらに下げられる</td></tr>
+          <tr><td>マンション（2024年改正）</td><td class="val orange">区分所有補正率で評価が上がる場合あり</td><td class="val orange">タワマン節税は効果縮小</td></tr>
+        </table>
+        <div class="know-note">2024年のタワマン節税規制強化により、高層マンションを使った相続税圧縮効果は大幅に縮小。現金を不動産に変える節税手法は残るが、選択肢が狭まっている。</div>
+        <div class="know-point">「不動産での節税は難しくなってきた。それより確実で安定した手法として生命保険の非課税枠活用がある」という説明につなげやすい。2024年改正を知っているだけで差別化できる。</div>
+      </div>
+    </div>
+
+    <!-- 中小企業の法人税率 -->
+    <div class="know-card collapsed" data-cat="kigyou" data-search="法人税 中小企業 軽減税率 800万円 特例 実効税率 地方税 決算">
+      <div class="know-card-header kc-kigyou" onclick="toggleKnow(this)">
+        <span class="know-card-icon">🧾</span>
+        <div class="know-card-title-block"><div class="know-card-title">中小企業の法人税率と実効税率（決算前節税の根拠）</div><div class="know-card-cat">法人・税務</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table">
+          <tr><th>課税所得</th><th>法人税率</th><th>実効税率（目安）</th></tr>
+          <tr><td>800万円以下（中小企業）</td><td class="val green">15%（軽減税率）</td><td class="val green">約21〜23%</td></tr>
+          <tr><td>800万円超（中小企業）</td><td class="val orange">23.2%</td><td class="val orange">約33〜35%</td></tr>
+          <tr><td>大企業（資本金1億円超）</td><td class="val orange">23.2%</td><td class="val orange">約30〜34%</td></tr>
+        </table>
+        <div class="know-note">実効税率は法人税+法人住民税+法人事業税の合計。中小企業は800万円を超えた部分から税率が一気に上がる。利益が800万円を超えそうな決算前は、退職金積立・保険料支払い等で課税所得を圧縮するインセンティブが高まる。</div>
+        <div class="know-point">「利益が800万円を超えたら税率が上がる」という境界線を知っていると、「だから今のうちに退職金の積立を始めませんか」という提案の緊急性が増す。決算前アプローチの核心的な知識。</div>
+      </div>
+    </div>
+
+    <!-- DBO（確定給付型企業年金） -->
+    <div class="know-card collapsed" data-cat="kigyou hoken" data-search="DBO 確定給付 企業年金 退職金 損金 法人 節税 幹部 中退共">
+      <div class="know-card-header kc-kigyou" onclick="toggleKnow(this)">
+        <span class="know-card-icon">🏦</span>
+        <div class="know-card-title-block"><div class="know-card-title">DBO（確定給付型企業年金）と中退共の違い</div><div class="know-card-cat">法人・税務 ／ 保険・非課税</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table">
+          <tr><th>項目</th><th>中退共</th><th>DBO（確定給付企業年金）</th></tr>
+          <tr><td>役員への適用</td><td class="val orange">不可</td><td class="val green">可能</td></tr>
+          <tr><td>給付額の差別化</td><td class="val orange">難しい</td><td class="val green">役職・勤続年数で設計可能</td></tr>
+          <tr><td>掛金の税務扱い</td><td class="val green">全額損金</td><td class="val green">全額損金</td></tr>
+          <tr><td>設立コスト</td><td class="val green">低い</td><td class="val orange">比較的高い</td></tr>
+          <tr><td>生命保険との組み合わせ</td><td class="val orange">難しい</td><td class="val green">死亡退職金を保険でカバー可能</td></tr>
+        </table>
+        <div class="know-note">DBOは役員・幹部に手厚い設計が可能で、採用・定着効果も高い。生命保険と組み合わせることで死亡時のリスクもカバーできる。規模が大きい法人（従業員30名以上）向けが一般的。</div>
+        <div class="know-point">「中退共だけでは物足りない」という経営者への次のステップ提案。幹部社員の引き止め・採用強化の文脈でも使える。保険との組み合わせ提案に自然に直結する。</div>
+      </div>
+    </div>
+
+    <!-- 相続税の2割加算 -->
+    <div class="know-card collapsed" data-cat="souzoku" data-search="相続税 2割加算 孫 代襲相続 養子 兄弟 相続人以外 受取人">
+      <div class="know-card-header kc-souzoku" onclick="toggleKnow(this)">
+        <span class="know-card-icon">✖️</span>
+        <div class="know-card-title-block"><div class="know-card-title">相続税の2割加算（孫・兄弟への相続は高くなる）</div><div class="know-card-cat">相続税</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table">
+          <tr><th>相続人の種類</th><th>2割加算</th></tr>
+          <tr><td>配偶者</td><td class="val green">加算なし</td></tr>
+          <tr><td>子（実子・養子）</td><td class="val green">加算なし</td></tr>
+          <tr><td>孫（代襲相続を除く）</td><td class="val orange">2割加算あり</td></tr>
+          <tr><td>兄弟姉妹</td><td class="val orange">2割加算あり</td></tr>
+          <tr><td>おい・めい（代襲相続以外）</td><td class="val orange">2割加算あり</td></tr>
+          <tr><td>第三者への遺贈</td><td class="val orange">2割加算あり</td></tr>
+        </table>
+        <div class="know-note">孫を養子にして相続させる「孫養子」は節税になる面もあるが代襲相続を除き2割加算対象。また養子縁組による法定相続人の増加は実子がいる場合は1人、いない場合は2人まで。</div>
+        <div class="know-point">「孫に直接財産を渡したいなら、生命保険の受取人を孫にする方が2割加算なしで渡せる場合がある」という提案につなげやすい。相続に詳しい専門家として信頼を得るポイント。</div>
+      </div>
+    </div>
+
+    <!-- 少額減価償却特例 -->
+    <div class="know-card collapsed" data-cat="kigyou" data-search="少額減価償却 30万円 即時償却 特例 中小企業 節税 設備投資 決算">
+      <div class="know-card-header kc-kigyou" onclick="toggleKnow(this)">
+        <span class="know-card-icon">💻</span>
+        <div class="know-card-title-block"><div class="know-card-title">少額減価償却資産の特例（30万円未満即時償却）</div><div class="know-card-cat">法人・税務 ／ 節税テクニック</div></div>
+        <span class="know-chevron">▾</span>
+      </div>
+      <div class="know-card-body">
+        <table class="know-table">
+          <tr><th>項目</th><th>内容</th></tr>
+          <tr><td>対象</td><td class="val green">資本金1億円以下の中小企業</td></tr>
+          <tr><td>条件</td><td class="val green">取得価額30万円未満の減価償却資産</td></tr>
+          <tr><td>効果</td><td class="val green">購入した年に全額即時償却（損金算入）可能</td></tr>
+          <tr><td>年間上限</td><td class="val orange">合計300万円まで</td></tr>
+          <tr><td>対象資産例</td><td class="val">PC・タブレット・業務ソフト・工具・備品など</td></tr>
+        </table>
+        <div class="know-note">通常は耐用年数に応じて毎年少しずつ経費化するが、この特例を使えば購入した年に全額経費化できる。決算前の節税対策として活用する企業が多い。適用期限は令和8年3月31日まで（延長の可能性あり）。</div>
+        <div class="know-point">「決算が近くなったら購入予定のものを前倒しして経費化する」という話から、「それなら保険も前払いで経費化できる方法がある」という流れにつなげやすい。</div>
+      </div>
+    </div>
+
+  </div><!-- /know-cards -->
+</div><!-- /know-tab -->
+</div><!-- /pane-know -->
+
+<script>
+function switchTab(t) {
+  document.querySelectorAll('.tab-pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active-corp','active-ind','active-know'));
+  document.getElementById('pane-' + t).classList.add('active');
+  const cls = t==='corp'?'active-corp':t==='ind'?'active-ind':'active-know';
+  document.getElementById('tab-' + t).classList.add(cls);
+}
+function toggleSec(h) {
+  h.classList.toggle('collapsed');
+  h.nextElementSibling.classList.toggle('hidden');
+}
+function toggleKnow(h) {
+  h.closest('.know-card').classList.toggle('collapsed');
+}
+
+// ── CORP ──
+const cTagCounts = {退職金:0,相続:0,事業承継:0,キーマン:0,福利厚生:0,資産運用:0};
+let cChecked = 0;
+const cTotal = () => document.querySelectorAll('#pane-corp .item').length;
+function ctoggle(el) {
+  el.classList.toggle('checked');
+  const tags = JSON.parse(el.dataset.tags||'[]');
+  const on = el.classList.contains('checked');
+  cChecked += on?1:-1;
+  tags.forEach(t=>{if(t in cTagCounts)cTagCounts[t]+=on?1:-1;});
+  const w=el.closest('.items-wrap'),id=w.id.replace('csec-','');
+  document.getElementById('cc'+id).textContent=w.querySelectorAll('.item.checked').length+'/'+w.querySelectorAll('.item').length;
+  const tot=cTotal();
+  document.getElementById('corp-score').textContent=cChecked+' / '+tot;
+  document.getElementById('corp-fill').style.width=(tot?cChecked/tot*100:0)+'%';
+  Object.keys(cTagCounts).forEach(k=>document.getElementById('ctag-'+k).classList.toggle('active',cTagCounts[k]>0));
+  renderResult('corp');
+}
+function resetCorp() {
+  document.querySelectorAll('#pane-corp .item.checked').forEach(el=>el.classList.remove('checked'));
+  Object.keys(cTagCounts).forEach(k=>cTagCounts[k]=0);cChecked=0;
+  document.getElementById('corp-score').textContent='0 / '+cTotal();
+  document.getElementById('corp-fill').style.width='0%';
+  Object.keys(cTagCounts).forEach(k=>document.getElementById('ctag-'+k).classList.remove('active'));
+  document.querySelectorAll('[id^="cc"]').forEach(el=>el.textContent='0/'+el.textContent.split('/')[1]);
+  renderResult('corp');
+}
+
+// ── IND ──
+const iTagCounts = {死亡保障:0,医療:0,教育:0,老後:0,相続:0,見直し:0};
+let iChecked = 0;
+const iTotal = () => document.querySelectorAll('#pane-ind .item').length;
+function itoggle(el) {
+  el.classList.toggle('checked');
+  const tags = JSON.parse(el.dataset.tags||'[]');
+  const on = el.classList.contains('checked');
+  iChecked += on?1:-1;
+  tags.forEach(t=>{if(t in iTagCounts)iTagCounts[t]+=on?1:-1;});
+  const w=el.closest('.items-wrap'),id=w.id.replace('isec-','');
+  document.getElementById('ic'+id).textContent=w.querySelectorAll('.item.checked').length+'/'+w.querySelectorAll('.item').length;
+  const tot=iTotal();
+  document.getElementById('ind-score').textContent=iChecked+' / '+tot;
+  document.getElementById('ind-fill').style.width=(tot?iChecked/tot*100:0)+'%';
+  Object.keys(iTagCounts).forEach(k=>document.getElementById('itag-'+k).classList.toggle('active',iTagCounts[k]>0));
+  renderResult('ind');
+}
+function resetInd() {
+  document.querySelectorAll('#pane-ind .item.checked').forEach(el=>el.classList.remove('checked'));
+  Object.keys(iTagCounts).forEach(k=>iTagCounts[k]=0);iChecked=0;
+  document.getElementById('ind-score').textContent='0 / '+iTotal();
+  document.getElementById('ind-fill').style.width='0%';
+  Object.keys(iTagCounts).forEach(k=>document.getElementById('itag-'+k).classList.remove('active'));
+  document.querySelectorAll('[id^="ic"]').forEach(el=>el.textContent='0/'+el.textContent.split('/')[1]);
+  renderResult('ind');
+}
+
+// ── RESULT MESSAGES ──
+const corpMsgs = {
+  退職金:{rc:'rc1',icon:'👑',title:'役員退職金 提案トーク',badge:'最高単価',situation:'退職準備ゼロ・利益が出ている・引退時期が近いシグナルがあります。今すぐ試算を見せるタイミングです。',talks:[{label:'利益から入る',text:'「毎年の利益、今は法人税で持っていかれているわけですが、その一部を社長自身の退職金として積み立てる仕組みがあります。試算だけ今日見てみませんか？」'},{label:'引退時期から入る',text:'「〇歳でのご引退をお考えなら、今から〇年しかない。退職金は早く始めるほど返戻率が上がるので、今すぐ動いた方がいい。今日、数字出せますよ。」'},{label:'報酬から計算する',text:'「退職金の上限は最終報酬月額×勤続年数×功績倍率3倍で決まります。今の月額で計算すると、社長は最大〇〇〇万円受け取れます。今どのくらい積み上がってますか？」'}]},
+  相続:{rc:'rc1',icon:'🏛',title:'相続対策 提案トーク',badge:'最高単価',situation:'資産規模・不動産・相続税未試算のシグナルがあります。その場で概算を出すと一気に自分ごとになります。',talks:[{label:'その場で試算を出す',text:'「相続税の計算式はシンプルで、今ここで概算が出せます。（電卓で試算）〇〇〇万円くらいかかります。これ、現金で準備できますか？」'},{label:'不動産から入る',text:'「不動産は相続税が高い上、現金で払わないといけない。財産の大半が不動産だと土地を売らざるを得なくなるケースが多いです。その納税資金を今から保険で準備する方法があります。」'},{label:'家族への影響から入る',text:'「何も対策しないと奥様やお子さんの手取りが〇〇〇万円くらい変わります。ご家族のためにも今のうちに整理しておきませんか？」'}]},
+  事業承継:{rc:'rc2',icon:'🔄',title:'事業承継 提案トーク',badge:'超高単価',situation:'株の帰属・後継者・自社株評価額に空白があります。税理士と連携した複合提案の好機です。',talks:[{label:'株評価から入る',text:'「自社株の評価額、ご存知ですか？業績が良い会社ほど株価が高くなって、継がせる時の税金が増えます。今のうちに評価額を下げる対策を取っておかないと、息子さんが大変なことになりますよ。」'},{label:'万が一の緊急性で入る',text:'「失礼ですが、もし社長に万が一のことがあったとき、株は誰に渡りますか？奥様がそのまま経営できる状態になっていますか？そこが一番リスクのある場所なんです。」'},{label:'税理士連携で入る',text:'「自社株の評価額、税理士の先生と一緒に一度出してみましょう。実際の数字が出ると、何をすべきかが明確になります。次回、先生も交えてお時間いただけますか？」'}]},
+  キーマン:{rc:'rc2',icon:'🛡',title:'キーマン保険 提案トーク',badge:'高単価',situation:'借入・個人保証・幹部依存のリスクシグナルがあります。「万が一の時の資金」として提案できます。',talks:[{label:'借入から入る',text:'「〇億円の借入がある中で、もし社長に万が一のことがあったとき、その返済と事業継続の資金、誰がどう手当てするか、実は対策されていない会社がほとんどなんです。」'},{label:'個人保証から入る',text:'「個人保証に入っているんですね。社長に万が一のことがあると、その保証が奥様に引き継がれる可能性があります。ご存知でしたか？」'},{label:'銀行視点で入る',text:'「銀行の審査では、経営者に万が一の時の事業継続プランを見ています。キーマン保険があると、金融機関からの信頼度も上がるんですよ。」'}]},
+  福利厚生:{rc:'rc3',icon:'👥',title:'福利厚生・団体保険 提案トーク',badge:'横展開力大',situation:'退職金制度・採用課題・幹部人材のニーズがあります。1社で複数名分の提案ができます。',talks:[{label:'採用・定着から入る',text:'「求人票に「団体生命保険加入・退職金制度あり」と書けるだけで応募が変わる会社があります。月数万円のコストで会社の魅力を上げる方法があります。」'},{label:'中退共の限界から入る',text:'「中退共だけだと幹部と一般社員で差をつけられないんですよ。団体保険や企業年金と組み合わせると、優秀な幹部をしっかり報いる仕組みができます。」'},{label:'見積もり提案から入る',text:'「従業員〇名規模だと団体保険は個人加入より保険料が割安です。会社負担にすると福利厚生費にもなる。一度見積もり出してみましょうか？」'}]},
+  資産運用:{rc:'rc4',icon:'💹',title:'資産運用・財産承継 提案トーク',badge:'継続収益',situation:'個人資産の移転・運用ニーズがあります。生前贈与との比較で一時払い保険を提案できます。',talks:[{label:'贈与との比較で入る',text:'「年間110万円の贈与だと、この資産規模では追いつかない可能性があります。保険を使うと贈与より効率よく資産を移転できる方法があって。比較してみませんか？」'},{label:'手取り最大化で入る',text:'「せっかく築いた資産をできるだけそのままお子さんに渡したいですよね。保険の非課税枠を使うと、相続税で持っていかれる分を合法的に圧縮できます。」'}]},
+};
+const indMsgs = {
+  死亡保障:{rc:'rc3',icon:'🛡',title:'死亡・収入保障 提案トーク',badge:'基本ニーズ',situation:'ご家族への保障ニーズが確認できました。現在の保障額と必要額のギャップを数字で示すと刺さります。',talks:[{label:'必要額を計算して見せる',text:'「お子さんが独立するまでの生活費・教育費・住居費を合計すると、必要な保障額は〇〇〇〇万円です。今の保険でカバーできていますか？」'},{label:'収入保障で入る',text:'「万が一の時、毎月〇万円が〇年間入ってくる収入保障保険という形もあります。一時金より家計管理がしやすくて、保険料もかなり割安ですよ。」'},{label:'団信との違いから入る',text:'「団信はローンを消してくれるだけで、その後の生活費・教育費は別に必要なんです。団信があっても死亡保障が必要な理由、ここにあります。」'}]},
+  医療:{rc:'rc3',icon:'🏥',title:'医療・就業不能 提案トーク',badge:'高発生率リスク',situation:'就業不能リスクへの備えが不足しています。「死亡より確率が高い」という事実が刺さります。',talks:[{label:'就業不能リスクから入る',text:'「実は死亡よりも、病気やケガで長期間働けなくなるリスクの方が確率が高いんです。3ヶ月働けなくなったら生活はどうなりますか？」'},{label:'医療費の現実から入る',text:'「がんの治療費、高額療養費制度があっても月数万円かかり、更に収入減も合わさると家計が一気に苦しくなりますよ。」'},{label:'古い保険の見直しから入る',text:'「10年以上前の医療保険だと先進医療・通院保障がカバーされていないことが多い。今の治療の実態に合わせて見直してみませんか？」'}]},
+  教育:{rc:'rc1',icon:'🎓',title:'教育資金 提案トーク',badge:'時限ニーズ',situation:'お子さんの進学プランがあります。18歳という期限から逆算した積立提案が有効です。',talks:[{label:'費用の現実を見せる',text:'「私立大学4年間で文系400万円・理系600万円以上かかる時代です。今から〇年で準備するには毎月いくら積み立てればいいか、計算してみましょうか？」'},{label:'学資保険の優位性から入る',text:'「学資保険は親に万が一のことがあっても、以降の保険料が免除されて満額受け取れます。ただの貯金とは違う安心がありますよ。」'},{label:'期限の緊急性から入る',text:'「お子さんが今〇歳ということは、大学入学まであと〇年しかありません。早く始めるほど毎月の負担が軽くなります。今日試算だけでもしてみましょうか？」'}]},
+  老後:{rc:'rc1',icon:'🌅',title:'老後・資産形成 提案トーク',badge:'継続収益',situation:'老後資金の準備に不安があります。「年金だけでは足りない」という数字を具体的に見せることが刺さります。',talks:[{label:'不足額を計算して見せる',text:'「ねんきん定期便の年金受給見込み額と、老後に必要な月額の差額を計算すると、〇年間で〇〇〇万円の不足になります。これをどう準備するか、一緒に考えましょう。」'},{label:'iDeCoの節税から入る',text:'「iDeCoは掛け金が全額所得控除になるので、年収〇万円の方なら年間〇万円の節税効果があります。老後資金を積みながら今の税金も減らせる。やらない理由がないですよ。」'},{label:'インフレリスクから入る',text:'「銀行預金の金利がほぼゼロの今、物価が上がるとお金の価値が実質下がっていきます。外貨や変額保険を使って、インフレに負けない資産形成をしませんか？」'}]},
+  相続:{rc:'rc2',icon:'🏛',title:'相続・贈与 提案トーク',badge:'高単価',situation:'資産移転・相続へのニーズがあります。非課税枠と保険の組み合わせを具体的に見せると響きます。',talks:[{label:'非課税枠から入る',text:'「生命保険の死亡保険金は500万円×法定相続人数が非課税になります。今の資産を保険に振り替えるだけで、相続税を合法的に減らせるんですよ。」'},{label:'贈与との効率比較で入る',text:'「年間110万円の贈与だけでは追いつかないケースが多い。教育資金の一括贈与や保険を組み合わせると、より効率よく資産を移転できます。」'},{label:'トラブル防止から入る',text:'「保険金であれば受取人が指定されているので遺産分割の対象になりません。遺言書と組み合わせると、ご家族へのトラブルを防げますよ。」'}]},
+  見直し:{rc:'rc5',icon:'🔄',title:'保険見直し 提案トーク',badge:'入口商談',situation:'現在の保険内容が不明瞭・古い可能性があります。「診断」として入ると警戒されずに進められます。',talks:[{label:'診断として入る',text:'「保険を売りに来たわけではなくて、今の保険の保障内容が今の状況に合っているかを一緒に確認したいんです。30分で現状チェックをして、問題なければそれで終わりです。」'},{label:'払いすぎの可能性から入る',text:'「保険料って毎月自動引き落としだから意外と見直さないですよね。保障内容が充実して保険料が下がったものも多い。まず今いくら払っているか確認しませんか？」'},{label:'ライフステージ変化から入る',text:'「結婚・出産・住宅購入と状況が変わった時が保険の見直しタイミングです。〇年前に入ったままだと、今の状況に合っていない可能性があります。棚卸しをさせていただけますか？」'}]},
+};
+function renderResult(tab) {
+  const isCorp = tab==='corp';
+  const counts = isCorp?cTagCounts:iTagCounts;
+  const msgs = isCorp?corpMsgs:indMsgs;
+  const panel = document.getElementById(isCorp?'corp-result':'ind-result');
+  const list = document.getElementById(isCorp?'corp-result-list':'ind-result-list');
+  const active = Object.keys(counts).filter(k=>counts[k]>0&&msgs[k]);
+  if (!active.length){panel.classList.remove('visible');return;}
+  panel.classList.add('visible');
+  list.innerHTML=active.map(k=>{
+    const m=msgs[k];
+    const th=m.talks.map(t=>'<div class="talk-script-item"><div class="talk-script-label">'+t.label+'</div><div class="talk-script-text">'+t.text+'</div></div>').join('');
+    return '<div class="result-card"><div class="result-card-header '+m.rc+'"><span class="result-card-icon">'+m.icon+'</span><span class="result-card-title">'+m.title+'</span><span class="result-card-badge">'+m.badge+'</span></div><div class="result-card-body"><div class="result-situation">'+m.situation+'</div><div class="talk-scripts">'+th+'</div></div></div>';
+  }).join('');
+}
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('corp-score').textContent='0 / '+cTotal();
+  document.getElementById('ind-score').textContent='0 / '+iTotal();
+});
+
+let currentCat = 'all';
+function filterCat(btn, cat) {
+  document.querySelectorAll('.know-cat-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  currentCat = cat;
+  applyFilter();
+}
+function filterKnow(val) {
+  currentSearch = val.toLowerCase();
+  applyFilter();
+}
+function applyFilter() {
+  document.querySelectorAll('.know-card').forEach(card => {
+    const cats = card.dataset.cat || '';
+    const search = card.dataset.search || '';
+    const title = card.querySelector('.know-card-title').textContent.toLowerCase();
+    const catMatch = currentCat === 'all' || cats.includes(currentCat);
+    const searchMatch = !currentSearch || title.includes(currentSearch) || search.includes(currentSearch);
+    card.classList.toggle('hidden-card', !(catMatch && searchMatch));
+  });
+}
+</script>
+</body>
+</html>
